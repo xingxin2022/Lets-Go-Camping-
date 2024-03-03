@@ -1,25 +1,22 @@
 Feature: Suggest a Park to Visit for a Group of Users (Friends)
+  Scenario: Suggest with a friend who has a private favorite list
+    Given I have a friend who has a private favorite list
+    When I click the "Suggest a Park" button
+    Then I should see the message "One of more of your friends has a private favorite list."
 
-  Background:
-    Given the user is logged in
-    And has friends added to their network
+  Scenario: Suggest with a friend who has a public favorite list
+    Given I have a friend who has a public favorite list
+    When I click the "Suggest a Park" button
+    Then I should see a suggested park
 
-  Scenario: Suggest a park based on user's past preferences
-    Given the user has visited parks in the past
-    When the user requests for a park suggestion
-    Then the system suggests a park based on the user's past visited parks
+  Scenario: Suggest with a nonexistent friend
+    Given I have a nonexistent friend
+    When I click the "Suggest a Park" button
+    Then I should see the message "One or more of your friends do not exist."
 
-  Scenario: Suggest a park based on a group's combined preferences
-    Given the user is planning a trip with friends
-    When the user requests a group park suggestion
-    Then the system suggests a park based on the group's past visited parks
-
-  Scenario: Suggest a park when there are no past preferences
-    Given the user has no past visited parks
-    When the user requests for a park suggestion
-    Then the system suggests a popular park among app users
-
-  Scenario: Update suggestion based on real-time availability
-    Given the user requests for a park suggestion
-    When the system identifies parks with no availability
-    Then the system excludes those parks from the suggestions
+  Scenario: Suggestion is correct and has the highest ratio
+    Given I have a favorite list with "Yosemite",and "Yellowstone"
+    And friend 1 has a favorite list with "Yosemite", and "Grand Canyon"
+    And friend 2 has a favorite list with "Yosemite", and "Yellowstone"
+    When I click the "Suggest a Park" button
+    Then I should see "Yosemite" as the suggested park
