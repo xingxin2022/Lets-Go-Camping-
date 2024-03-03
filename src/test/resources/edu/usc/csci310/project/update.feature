@@ -1,22 +1,28 @@
 Feature: Update and review a favorite park list
+  Scenario: Visiting favorite park list
+    Given I have a favorite park list
+    When I visit the favorite park list page
+    Then I should see the list of my favorite parks
+    And the order of the list should be by park name
 
-  Background:
-    Given the user is logged in
+  Scenario: Moving a park up in the list
+    Given I am on the favorite park list page
+    When I click the move up button for a park
+    Then the park should move up in the list
+    And the order of the list should be updated for future visits
 
-  Scenario: Create a list
-    Given the user does not have a list yet
-    When the user add a park to the list for the first time
-    Then the system creates a list with the park in it
+  Scenario: Moving a park down in the list
+    Given I am on the favorite park list page
+    When I click the move down button for a park
+    Then the park should move down in the list
+    And the order of the list should be updated for future visits
 
-  Scenario: Update the list
-    Given the user has created a list
-    When the user add a park to the list
-    Then the system adds that park to the list
+  Scenario: Clicking on a park in the list to view details
+    Given I am on the favorite park list page
+    When I click on a park in the list
+    Then I should be taken to the park details page
+    And the park details should be displayed
 
-  Scenario: Review the list
-    Given the user has created a list
-    When the user tries to check out the list
-    Then the system shows the list
 
 
 
