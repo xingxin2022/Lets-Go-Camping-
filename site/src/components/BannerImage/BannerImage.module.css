@@ -1,0 +1,32 @@
+.banner {
+    position: relative;
+    top: 50px;
+    height: calc(100vh - 50px);
+    width: 100%;
+}
+
+.bannerImage {
+    position:absolute;
+    top: -50px;
+    width: 100%;
+    height: calc(100% + 50px);
+    object-fit: cover;
+    transition: opacity 1s ease, filter 1s ease;
+}
+
+.dim {
+    opacity: 0.7;
+    filter: brightness(50%);
+}
+
+.overlayText {
+    font-size: 48px;
+    font-weight: bold;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    z-index: 10;
+}
