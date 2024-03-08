@@ -94,10 +94,6 @@ test('Make sure we give right response based on incorrect login', async () => {
     await userEvent.click(submitButton);
 });
 
-
-
-
-
 test('Make sure signup fields update on change', async () => {
     render(<SignUpCard />);
     const usernameInput = screen.getByTestId("signup-username");
@@ -113,7 +109,6 @@ test('Make sure signup fields update on change', async () => {
     expect(passwordInput.value).toBe('signuptestpassword');
     expect(confirmPasswordInput.value).toBe('signuptestpassword');
 });
-
 
 test('Make sure handles successful sign up correctly', async () => {
     fetch.mockImplementationOnce(() =>
@@ -156,6 +151,20 @@ test('handles network errors during sign up correctly', async () => {
     await userEvent.type(confirmPasswordInput, 'signuptestpassword');
     await userEvent.click(submitButton);
 
+});
+
+
+test('Make sure the navigates are functioning correctly', async () => {
+
+    render(<App />, {wrapper: BrowserRouter});
+
+    const toSearch = screen.getByTestId("toSearch");
+    await userEvent.click(toSearch);
+    expect(screen.getByText(/Search By/i)).toBeInTheDocument();
+
+    const toHome = screen.getByTestId("toHome");
+    await userEvent.click(toHome);
+    expect(screen.getByText(/Confirm Password/i)).toBeInTheDocument();
 });
 
 
