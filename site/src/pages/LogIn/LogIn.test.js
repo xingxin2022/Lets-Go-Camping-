@@ -28,6 +28,7 @@ test("Make sure all the components are rendered", async() =>{
     expect(screen.getByTestId('bannerImage')).toBeInTheDocument();
     expect(screen.getByTestId('signUpCard')).toBeInTheDocument();
     expect(screen.getByTestId('logInCard')).toBeInTheDocument();
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
 });
 
 test("Make sure hover on and off works", async() =>{
@@ -82,7 +83,6 @@ test('Make sure we give right response based on incorrect login', async () => {
             json: () => Promise.resolve({ message: 'Incorrect username or password' }), // Mock the JSON response
         })
     );
-
 
     render(<LogInCard />);
     const usernameInput = screen.getByLabelText(/name/i);

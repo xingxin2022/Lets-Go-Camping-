@@ -5,6 +5,7 @@ import Header from "../../components/Header/Header";
 import BannerImage from"../../components/BannerImage/BannerImage";
 import SignUpCard from "../../components/SignUpCard/SignUpCard";
 import LogInCard from "../../components/LogInCard/LogInCard";
+import Footer from "../../components/Footer/Footer";
 
 import styles from "./LogIn.module.css";
 
@@ -17,6 +18,7 @@ function LogIn() {
                 <SignUpCard />
                 <LogInCard />
             </div>
+            <Footer />
         </div>
     );
 }
