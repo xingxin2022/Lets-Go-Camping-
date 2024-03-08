@@ -1,10 +1,18 @@
 import React from "react";
+
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import styles from './Header.module.css';
 
 function Header() {
+
+    //const navigate = useNavigate(); // Initialize useNavigate hook
+
+    //const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
+
     return (
-        <header className={styles.header}>
-            < img src="/images/logoTemporary_0302.png" alt="Let's Go Camping!" className={styles.logo}/>
+        <header className={styles.header} data-testid="header">
+            <img src="/images/logoTemporary_0302.png" alt="Let's Go Camping!" className={styles.logo}/>
+
             <h1 className={styles.title}>Let's Go Camping!</h1>
             <nav>
                 <ul className={styles.navList}>
