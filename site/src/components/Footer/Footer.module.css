@@ -1,0 +1,18 @@
+body {
+    margin: 0;}
+
+.footer {
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #F2EAE4;
+    color: #8C5F45;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    bottom: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    position: absolute;
+}
