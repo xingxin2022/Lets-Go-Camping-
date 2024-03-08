@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./styles/index.css";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import SearchPage from "./pages/Search/Search"
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -10,6 +11,7 @@ root.render(
     <BrowserRouter>
         <Routes>
             <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/search" element={<SearchPage />} />
         </Routes>
     </BrowserRouter>
   </React.StrictMode>

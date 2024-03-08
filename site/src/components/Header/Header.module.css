@@ -1,0 +1,44 @@
+body {
+    margin: 0;}
+
+.header {
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #7A8C72;
+    color: #F2F2F2;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    height: 50px;
+    margin-right: 1rem;
+}
+
+.title {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.navList {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.navItem {
+    margin-left: 1rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.navItem:hover {
+    color: #BF754B; /* Color changes when hovered over */
+}
