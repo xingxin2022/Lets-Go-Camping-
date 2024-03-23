@@ -1,14 +1,13 @@
-version: "2"
+version: "3.8"
 services:
     310-project:
         build: .
         ports:
             - "8080:8080" # provide direct access to web server
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/mydatabase.db
         stdin_open: true
         tty: true
         volumes:
             - maven-cache:/root/.m2
-            - .:/usr/local/310-project
-
-volumes:
-    maven-cache: {}
+            - .:/usr/local/310-project # Map the project directory to a directory in the container
