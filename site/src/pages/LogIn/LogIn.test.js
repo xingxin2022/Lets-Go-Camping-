@@ -28,6 +28,7 @@ test("Make sure all the components are rendered", async() =>{
     expect(screen.getByTestId('bannerImage')).toBeInTheDocument();
     expect(screen.getByTestId('signUpCard')).toBeInTheDocument();
     expect(screen.getByTestId('logInCard')).toBeInTheDocument();
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
 });
 
 test("Make sure hover on and off works", async() =>{
@@ -83,7 +84,6 @@ test('Make sure we give right response based on incorrect login', async () => {
         })
     );
 
-
     render(<LogInCard />);
     const usernameInput = screen.getByLabelText(/name/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -93,10 +93,6 @@ test('Make sure we give right response based on incorrect login', async () => {
     await userEvent.type(passwordInput, 'loginwrongpassword');
     await userEvent.click(submitButton);
 });
-
-
-
-
 
 test('Make sure signup fields update on change', async () => {
     render(<SignUpCard />);
@@ -113,7 +109,6 @@ test('Make sure signup fields update on change', async () => {
     expect(passwordInput.value).toBe('signuptestpassword');
     expect(confirmPasswordInput.value).toBe('signuptestpassword');
 });
-
 
 test('Make sure handles successful sign up correctly', async () => {
     fetch.mockImplementationOnce(() =>
@@ -156,6 +151,20 @@ test('handles network errors during sign up correctly', async () => {
     await userEvent.type(confirmPasswordInput, 'signuptestpassword');
     await userEvent.click(submitButton);
 
+});
+
+
+test('Make sure the navigates are functioning correctly', async () => {
+
+    render(<App />, {wrapper: BrowserRouter});
+
+    const toSearch = screen.getByTestId("toSearch");
+    await userEvent.click(toSearch);
+    expect(screen.getByText(/Search By/i)).toBeInTheDocument();
+
+    const toHome = screen.getByTestId("toHome");
+    await userEvent.click(toHome);
+    expect(screen.getByText(/Confirm Password/i)).toBeInTheDocument();
 });
 
 
