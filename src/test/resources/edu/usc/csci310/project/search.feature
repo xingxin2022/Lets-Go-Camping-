@@ -3,7 +3,7 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search page
     When I enter "Yosemite" into search box
     And click the search button
-    Then I should see a list of parks that match the search criteria
+    Then I should see 10 parks listed in the search results
 
   Scenario: Search should return 10 parks
     Given I am on the search page
