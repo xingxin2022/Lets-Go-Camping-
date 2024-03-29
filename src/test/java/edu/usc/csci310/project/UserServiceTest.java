@@ -25,6 +25,9 @@ public class UserServiceTest {
     private PreparedStatement preparedStatement;
 
     @Mock
+    private PreparedStatement preparedStatement2;
+
+    @Mock
     private ResultSet resultSet;
 
     @InjectMocks
@@ -108,7 +111,6 @@ public class UserServiceTest {
 
         User user = new User("newUser", "Password1a");
         RegisterResponse response = userService.registerUser(user, "Password1a");
-
         assertEquals("Error when registering user: Database connection error", response.getMessage());
     }
 
@@ -119,21 +121,64 @@ public class UserServiceTest {
 
         User user = new User("newUser", "Password1a");
         RegisterResponse response = userService.registerUser(user, "Password1a");
-
         assertEquals("Error when registering user: Database connection error", response.getMessage());
     }
 
     @Test
-    public void registerUserSQLException3() throws SQLException {
+    public void registerClosingResourcesException1() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("SQL Error"));
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
 
         User user = new User("newUser", "Password1a");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing result set")).when(resultSet).close();
         RegisterResponse response = userService.registerUser(user, "Password1a");
-
-        assertEquals("Error when registering user: SQL Error", response.getMessage());
+        assertEquals("Error when registering user: Error closing result set", response.getMessage());
     }
 
+    @Test
+    public void registerClosingResourcesException2() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        User user = new User("newUser", "Password1a");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing insert statement")).when(preparedStatement).close();
+        RegisterResponse response = userService.registerUser(user, "Password1a");
+        assertEquals("Error when registering user: Error closing insert statement", response.getMessage());
+    }
+
+    @Test
+    public void registerClosingResourcesException3() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement).thenReturn(preparedStatement2);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        User user = new User("newUser", "Password1a");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing check user statement")).when(preparedStatement).close();
+        RegisterResponse response = userService.registerUser(user, "Password1a");
+        assertEquals("Error when registering user: Error closing check user statement", response.getMessage());
+    }
+
+    @Test
+    public void registerClosingResourcesException4() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement).thenReturn(preparedStatement2);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        User user = new User("newUser", "Password1a");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing connection")).when(connection).close();
+        RegisterResponse response = userService.registerUser(user, "Password1a");
+        assertEquals("Error when registering user: Error closing connection", response.getMessage());
+    }
 
     @Test
     public void loginUserSuccess() throws SQLException {
@@ -184,27 +229,44 @@ public class UserServiceTest {
     }
 
     @Test
-    public void loginUserSQLException2() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenThrow(new SQLException("SQL Error"));
-
-        LoginResponse response = userService.loginUser("testUser", "Password123");
-
-        assertEquals("Error when trying to login: SQL Error", response.getMessage());
-    }
-
-    @Test
-    public void loginUserSQLException3() throws SQLException {
+    public void loginClosingResourcesException() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenThrow(new SQLException("SQL Error"));
-
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("password")).thenReturn("Password123");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing connection")).when(connection).close();
         LoginResponse response = userService.loginUser("testUser", "Password123");
-
-        assertEquals("Error when trying to login: SQL Error", response.getMessage());
+        assertEquals("Error when trying to login: Error closing connection", response.getMessage());
     }
+
+    @Test
+    public void loginClosingResourcesException2() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("password")).thenReturn("Password123");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing prepared statement")).when(preparedStatement).close();
+        LoginResponse response = userService.loginUser("testUser", "Password123");
+        assertEquals("Error when trying to login: Error closing prepared statement", response.getMessage());
+    }
+
+    @Test
+    public void loginClosingResourcesException3() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("password")).thenReturn("Password123");
+        // throw exception when closing resources in finally block
+        doThrow(new SQLException("Error closing result set")).when(resultSet).close();
+        LoginResponse response = userService.loginUser("testUser", "Password123");
+        assertEquals("Error when trying to login: Error closing result set", response.getMessage());
+    }
+
 
     @Test
     public void initializeDatabase() throws SQLException {
