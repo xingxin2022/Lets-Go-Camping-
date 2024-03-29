@@ -22,6 +22,8 @@ test('Search by Park Name Button', async () => {
     const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
     let formattedQuery="yellowstone_national_park";
 
+    console.log(key);
+
     let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=${key}`;
     fetch.mockResponseOnce(JSON.stringify({
         data: [{
@@ -68,7 +70,6 @@ test('Search by Activity Function', async() => {
     await waitFor( () =>user.click(screen.getByRole('button', {name:/Search/})));
     expect(fetch).toHaveBeenCalledTimes(1);
 
-//    expect(screen.getByText(/hiking/i)).toBeInTheDocument();
 });
 
 test('Search by State Function', async() => {
