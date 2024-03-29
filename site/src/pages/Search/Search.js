@@ -4,7 +4,6 @@ import { useState } from "react";
 
 
 
-const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
 
 const stateCodes = {
   Alabama: "AL",
