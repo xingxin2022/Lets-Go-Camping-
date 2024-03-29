@@ -1,15 +1,19 @@
 package edu.usc.csci310.project;
 
+import edu.usc.csci310.project.exceptions.InvalidPasswordException;
+import edu.usc.csci310.project.exceptions.LoginFailedException;
+import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,22 +38,22 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void registerUserAlreadyExists() throws SQLException {
+    public void registerUserAlreadyExists() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        // Simulate existing user
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt(1)).thenReturn(1);
 
         User user = new User("testUser", "Password123");
 
-        RegisterResponse response = userService.registerUser(user, "Password123");
-
-        assertEquals("Username already exists", response.getMessage());
+        // This should throw an exception due to user existence simulation
+        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(user, "Password123"));
     }
 
     @Test
-    public void registerUserSuccess() throws SQLException {
+    public void registerUserSuccess() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -57,6 +61,7 @@ public class UserServiceTest {
 
         User user = new User("newUser", "Password1a");
         RegisterResponse response = userService.registerUser(user, "Password1a");
+
         assertEquals("User registered successfully", response.getMessage());
     }
 
@@ -72,6 +77,7 @@ public class UserServiceTest {
         RegisterResponse response = userService.registerUser(user, "Password1a");
         assertEquals("User registered successfully", response.getMessage());
     }
+
 
     @Test
     public void registerPasswordMismatch() throws SQLException {
@@ -265,6 +271,7 @@ public class UserServiceTest {
         doThrow(new SQLException("Error closing result set")).when(resultSet).close();
         LoginResponse response = userService.loginUser("testUser", "Password123");
         assertEquals("Error when trying to login: Error closing result set", response.getMessage());
+        assertThrows(LoginFailedException.class, () -> userService.loginUser("nonExistentUser", "Password123"));
     }
 
 

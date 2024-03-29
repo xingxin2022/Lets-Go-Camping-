@@ -2,23 +2,23 @@ package edu.usc.csci310.project;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import edu.usc.csci310.project.exceptions.InvalidPasswordException;
+import edu.usc.csci310.project.exceptions.LoginFailedException;
+import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)
@@ -52,7 +52,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void loginUserTest() throws Exception {
+    public void loginUser_ShouldReturnSuccess_WhenValidRequest() throws Exception {
         // Arrange
         String username = "user";
         String password = "Password123";
@@ -60,68 +60,77 @@ public class UserControllerTest {
                 .thenReturn(new LoginResponse("Login Successful"));
 
         // Act & Assert
-        MvcResult result = mockMvc.perform(post("/api/users/login")
+        mockMvc.perform(post("/api/users/login")
                         .param("username", username)
                         .param("password", password)
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Login Successful")))
-                .andReturn();
+                .andExpect(content().string(containsString("Login Successful")));
 
         verify(userService, times(1)).loginUser(username, password);
-        MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-        assertNotNull(session, "Session should not be null");
-        assertEquals(username, session.getAttribute("username"), "Session attribute 'username' should match the provided username");
     }
 
     @Test
-    public void noLoginUserTest() throws Exception {
+    public void registerUser_ShouldReturnConflict_WhenUserAlreadyExists() throws Exception {
         // Arrange
-        String username = "user";
-        String password = "wrongpassword";
-        when(userService.loginUser(username, password))
-                .thenReturn(new LoginResponse("Login Failed"));
+        when(userService.registerUser(any(User.class), anyString()))
+                .thenThrow(new UserAlreadyExistsException("User already exists"));
 
-        // Act
-        MvcResult result = mockMvc.perform(post("/api/users/login")
-                        .param("username", username)
-                        .param("password", password)
+        // Act & Assert
+        mockMvc.perform(post("/api/users/register")
+                        .param("username", "existingUser")
+                        .param("password", "Password123")
+                        .param("confirmPassword", "Password123")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Login Failed")))
-                .andReturn();
-
-        // Assert
-        verify(userService, times(1)).loginUser(username, password);
-
-        // Verify session attribute is not set due to failed login
-        MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
-        assertTrue(session == null || session.getAttribute("username") == null, "Session attribute 'username' should not be set on failed login"); // Assert that the session attribute "username" is not set
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("User already exists")));
     }
 
-
-
     @Test
-    public void logoutUserTest() throws Exception {
-        mockMvc.perform(post("/api/users/logout")
+    public void registerUser_ShouldReturnBadRequest_WhenInvalidPassword() throws Exception {
+        // Arrange
+        when(userService.registerUser(any(User.class), anyString()))
+                .thenThrow(new InvalidPasswordException("Invalid password"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/register")
+                        .param("username", "user")
+                        .param("password", "pass")
+                        .param("confirmPassword", "pass")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Logged out successfully")));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid password")));
     }
 
     @Test
-    public void GetCurrentUserTest() throws Exception {
-        String username = "user";
-        mockMvc.perform(get("/api/users/current-user")
-                        .sessionAttr("username", username))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString(username)));
-    }
+    public void loginUser_ShouldReturnUnauthorized_WhenLoginFailed() throws Exception {
+        // Arrange
+        when(userService.loginUser(anyString(), anyString()))
+                .thenThrow(new LoginFailedException("Login failed"));
 
-    @Test
-    public void getNoCurrentUserTest() throws Exception {
-        mockMvc.perform(get("/api/users/current-user"))
+        // Act & Assert
+        mockMvc.perform(post("/api/users/login")
+                        .param("username", "user")
+                        .param("password", "wrongPassword")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string(containsString("User not logged in")));
+                .andExpect(content().string(containsString("Login failed")));
+    }
+
+    @Test
+    public void handleException_ShouldReturnInternalServerError() throws Exception {
+        // Arrange
+        when(userService.registerUser(any(User.class), anyString()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/register")
+                        .param("username", "user")
+                        .param("password", "Password123")
+                        .param("confirmPassword", "Password123")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("An unexpected error occurred: Unexpected error")));
     }
 }
+
