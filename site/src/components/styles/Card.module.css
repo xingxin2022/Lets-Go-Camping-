@@ -1,17 +1,18 @@
 .card {
-    width: 100%;
+    width: calc(100% - 40px); /* ensure card doesn't touch the edges of the cardsContainer */
     margin-bottom: 20px;
-
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     background-color: #2A402C;
     color: #F2F2F2;
     padding: 20px;
-    max-width: 400px;
+    max-width: 400px; /* you may need to adjust this value */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     border: 1px solid #445940;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .cardContent{
@@ -54,4 +55,17 @@ button {
 button:hover {
     background-color: #BF754B;
     color: #F2F2F2;
+}
+
+.loginError {
+    color: red;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 80%; /* responsive width */
+        max-width: 350px; /* max width to prevent overflow */
+        margin-top: 20px; /* added top margin for spacing */
+    }
 }

@@ -32,6 +32,11 @@ Feature: Login page with create account and login functionality.
     When I click the create account button
     Then I should be on the create account page
 
+  Scenario: navigating to the login page
+    Given I am on the create account page
+    When I click the button to back to the login page
+    Then I should be on the login page
+
   Scenario: confirm cancel action when creating account
     Given I am on the login page
     When I click the cancel button
