@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "../styles/Card.module.css"
 
 function LogInCard() {
@@ -6,17 +7,18 @@ function LogInCard() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loginMessage, setLoginMessage] = useState('');
+    const [loginError, setLoginError] = useState('');
+    const navigate = useNavigate();
 
     // Handle form submission
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Prevent default form submission behavior
+        event.preventDefault();
+        setLoginError('');
 
-        // Construct the form data
         const formData = new URLSearchParams();
         formData.append('username', username);
         formData.append('password', password);
 
-        // Make the POST request to the /login endpoint
         try {
             const response = await fetch('/api/users/login', {
                 method: 'POST',
@@ -26,19 +28,35 @@ function LogInCard() {
                 body: formData.toString(),
             });
 
-            const data = await response.json();
-            console.log(data);
-            alert(data.message);
-            setLoginMessage(data.message);
+            if (!response.ok) {
+                // Try to parse as JSON first, but fall back to text if it fails
+                let message = 'Unknown error occurred'; // Default message
+                const contentType = response.headers.get('Content-Type');
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        const data = await response.json();
+                        message = data.message;
+                    } catch (jsonError) {
+                        // JSON parsing failed, handle it or ignore as JSON isn't expected
+                    }
+                } else {
+                    // Not JSON, read as text
+                    message = await response.text();
+                }
+                setLoginError(message);
+                return; // Stop further processing
+            }
 
-            // Clear the form inputs
-            setUsername('');
-            setPassword('');
+            // Assuming a successful response is always in JSON format
+            const data = await response.json();
+            setLoginMessage(data.message); // Handle success
+            navigate('/search');
 
         } catch (error) {
-            console.error('Error during the login process:', error);
-            setLoginMessage('An error occurred. Please try again.');
+            //console.error('Error during the login process:', error);
+            setLoginError('An error occurred. Please try again.');
         }
+
     };
     return (
         <div className={styles.card} data-testid="logInCard">
@@ -65,7 +83,16 @@ function LogInCard() {
                     />
                 </div>
                 <button type="submit">Log In</button>
+                {loginError && <div className={styles.loginError} data-testid="login-error">{loginError}</div>}
             </form>
+
+            <br></br>
+
+            <div>
+                Don't have an account?
+                <span onClick={() => navigate('/signup')}
+                                             style={{color: '#BF754B', cursor: 'pointer'}}> Sign up here</span>
+            </div>
         </div>
     );
 }

@@ -1,5 +1,9 @@
 package edu.usc.csci310.project;
 
+import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
+import edu.usc.csci310.project.exceptions.InvalidPasswordException;
+import edu.usc.csci310.project.exceptions.LoginFailedException;
+
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,150 +20,74 @@ public class UserService {
         this.dataSource = dataSource;
     }
 
-    public RegisterResponse registerUser(User user, String confirmPassword) {
-        Connection connection = null;
-        PreparedStatement checkUserStmt = null;
-        PreparedStatement insertUserStmt = null;
-        ResultSet rs = null;
-
+    public RegisterResponse registerUser(User user, String confirmPassword) throws UserAlreadyExistsException, InvalidPasswordException {
         String checkUserSql = "SELECT COUNT(*) FROM users WHERE username = ?";
         String insertUserSql = "INSERT INTO users (username, password) VALUES (?, ?)";
 
-        try {
-            connection = dataSource.getConnection();
-            checkUserStmt = connection.prepareStatement(checkUserSql);
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
 
             checkUserStmt.setString(1, user.getUsername());
-            rs = checkUserStmt.executeQuery();
+            ResultSet rs = checkUserStmt.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
-                return new RegisterResponse("Username already exists");
+                throw new UserAlreadyExistsException("Username already exists");
             }
 
             // Validate password
-            RegisterResponse response = validatePassword(user.getPassword(), confirmPassword);
-            if (!response.getMessage().equals("Password is valid")) {
-                return response;
-            }
+            validatePassword(user.getPassword(), confirmPassword);
 
             // Insert user
-            insertUserStmt = connection.prepareStatement(insertUserSql);
-            insertUserStmt.setString(1, user.getUsername());
-            insertUserStmt.setString(2, user.getPassword());
-            insertUserStmt.executeUpdate();
-
-        } catch (SQLTimeoutException sqlte) {
-            sqlte.printStackTrace();
-            return new RegisterResponse("Error when registering user: " + sqlte.getMessage());
+            try (PreparedStatement insertUserStmt = connection.prepareStatement(insertUserSql)) {
+                insertUserStmt.setString(1, user.getUsername());
+                insertUserStmt.setString(2, user.getPassword());
+                insertUserStmt.executeUpdate();
+            }
+            return new RegisterResponse("User registered successfully");
         } catch (SQLException sqle) {
             sqle.printStackTrace();
-            return new RegisterResponse("Error when registering user: " + sqle.getMessage());
-        } finally {
-            // close resources
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new RegisterResponse("Error when registering user: " + e.getMessage());
-                }
-            }
-            if (insertUserStmt != null) {
-                try {
-                    insertUserStmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new RegisterResponse("Error when registering user: " + e.getMessage());
-                }
-            }
-            if (checkUserStmt != null) {
-                try {
-                    checkUserStmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new RegisterResponse("Error when registering user: " + e.getMessage());
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new RegisterResponse("Error when registering user: " + e.getMessage());
-                }
-            }
+            // Consider a more generic exception for SQL errors if needed
+            throw new RuntimeException("Error when registering user: " + sqle.getMessage());
         }
-        return new RegisterResponse("User registered successfully");
     }
 
-    public RegisterResponse validatePassword(String password, String confirmPassword) {
+    public void validatePassword(String password, String confirmPassword) throws InvalidPasswordException {
         if (!password.equals(confirmPassword)) {
-            return new RegisterResponse("Passwords do not match");
+            throw new InvalidPasswordException("Passwords do not match");
         }
 
         // Check for password requirements
         if (!password.matches(".*[A-Z].*")) {
-            return new RegisterResponse("Password must contain at least one uppercase letter");
+            throw new InvalidPasswordException("Password must contain at least one uppercase letter");
         }
         if (!password.matches(".*[a-z].*")) {
-            return new RegisterResponse("Password must contain at least one lowercase letter");
+            throw new InvalidPasswordException("Password must contain at least one lowercase letter");
         }
         if (!password.matches(".*\\d.*")) {
-            return new RegisterResponse("Password must contain at least one digit");
+            throw new InvalidPasswordException("Password must contain at least one digit");
         }
-        return new RegisterResponse("Password is valid");
     }
 
-    public LoginResponse loginUser(String username, String password) {
-        Connection connection = null;
-        PreparedStatement checkUserStmt = null;
-        ResultSet rs = null;
-
+    public LoginResponse loginUser(String username, String password) throws LoginFailedException {
         String checkUserSql = "SELECT password FROM users WHERE username = ?";
 
-        try {
-            connection = dataSource.getConnection();
-            checkUserStmt = connection.prepareStatement(checkUserSql);
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
             checkUserStmt.setString(1, username);
-            rs = checkUserStmt.executeQuery();
-
+            ResultSet rs = checkUserStmt.executeQuery();
             if (rs.next()) {
                 String storedPassword = rs.getString("password");
                 if (!storedPassword.equals(password)) {
-                    return new LoginResponse("Password is incorrect");
+                    throw new LoginFailedException("Invalid username or password");
                 }
+                return new LoginResponse("Login Successful");
             } else {
-                return new LoginResponse("Username does not exist");
+                throw new LoginFailedException("Username does not exist");
             }
         } catch (SQLException sqle) {
             sqle.printStackTrace();
-            return new LoginResponse("Error when trying to login: " + sqle.getMessage());
-        } finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new LoginResponse("Error when trying to login: " + e.getMessage());
-                }
-            }
-            if (checkUserStmt != null) {
-                try {
-                    checkUserStmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new LoginResponse("Error when trying to login: " + e.getMessage());
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return new LoginResponse("Error when trying to login: " + e.getMessage());
-                }
-            }
+            // Consider a more generic exception for SQL errors if needed
+            throw new RuntimeException("Error when trying to login: " + sqle.getMessage());
         }
-        return new LoginResponse("Login Successful");
     }
     @PostConstruct
     public void initializeDatabase() {
@@ -169,7 +97,7 @@ public class UserService {
                 "password TEXT NOT NULL)";
 
         try (Connection conn = dataSource.getConnection();
-            Statement stmt = conn.createStatement()) {
+             Statement stmt = conn.createStatement()) {
             stmt.execute(createTableSql);
         } catch (SQLException e) {
             System.out.println("Error initializing database: " + e.getMessage());

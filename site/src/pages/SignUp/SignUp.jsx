@@ -3,22 +3,22 @@ import React, {/* useState */} from "react";
 
 import Header from "../../components/Header/Header";
 import BannerImage from"../../components/BannerImage/BannerImage";
-import LogInCard from "../../components/LogInCard/LogInCard";
+import SignUpCard from "../../components/SignUpCard/SignUpCard";
 import Footer from "../../components/Footer/Footer";
 
-import styles from "./LogIn.module.css";
+import styles from "./SignUp.module.css";
 
-function LogIn() {
+function SignUp() {
     return (
-        <div className={styles.logInPage}>
+        <div className={styles.signUpPage}>
             <Header />
             <BannerImage />
             <div className={styles.cardsContainer}>
-                <LogInCard />
+                <SignUpCard/>
             </div>
-            <Footer />
+            <Footer/>
         </div>
     );
 }
 
-export default LogIn;
+export default SignUp;
