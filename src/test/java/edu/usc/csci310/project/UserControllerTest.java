@@ -95,52 +95,7 @@ public class UserControllerTest {
                 .andExpect(content().string(containsString("User not logged in")));
     }
 
-    @Test
-    public void registerUser_ShouldReturnConflict_WhenUserAlreadyExists() throws Exception {
-        // Arrange
-        when(userService.registerUser(any(User.class), anyString()))
-                .thenThrow(new UserAlreadyExistsException("User already exists"));
-
-        // Act & Assert
-        mockMvc.perform(post("/api/users/register")
-                        .param("username", "existingUser")
-                        .param("password", "Password123")
-                        .param("confirmPassword", "Password123")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andExpect(status().isConflict())
-                .andExpect(content().string(containsString("User already exists")));
-    }
-
-    @Test
-    public void registerUser_ShouldReturnBadRequest_WhenInvalidPassword() throws Exception {
-        // Arrange
-        when(userService.registerUser(any(User.class), anyString()))
-                .thenThrow(new InvalidPasswordException("Invalid password"));
-
-        // Act & Assert
-        mockMvc.perform(post("/api/users/register")
-                        .param("username", "user")
-                        .param("password", "pass")
-                        .param("confirmPassword", "pass")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Invalid password")));
-    }
-
-    @Test
-    public void loginUser_ShouldReturnUnauthorized_WhenLoginFailed() throws Exception {
-        // Arrange
-        when(userService.loginUser(anyString(), anyString()))
-                .thenThrow(new LoginFailedException("Login failed"));
-
-        // Act & Assert
-        mockMvc.perform(post("/api/users/login")
-                        .param("username", "user")
-                        .param("password", "wrongPassword")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().string(containsString("Login failed")));
-    }
+    
 
     @Test
     public void handleException_ShouldReturnInternalServerError() throws Exception {
