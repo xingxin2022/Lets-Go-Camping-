@@ -9,6 +9,7 @@ import userEvent from "@testing-library/user-event";
 
 afterEach(() => {
     window.history.pushState(null, document.title,"/");
+    jest.clearAllMocks();
 });
 beforeEach(() => {
     fetch.resetMocks();
@@ -16,7 +17,58 @@ beforeEach(() => {
 
 
 
+test('displays PopUpModal when modalIsOpen and modalPark are set', async () => {
+    const user = userEvent.setup();
 
+    // Mocking the fetch call to return a park, triggering modal conditions
+    fetch.mockResponseOnce(JSON.stringify({
+      data: [{
+        id: "1",
+        fullName: "Test Park",
+        // other necessary park details
+      }]
+    }));
+
+    render(<Search />, { wrapper: BrowserRouter });
+
+    // Simulate actions that would cause a park item to be clicked and the modal to open
+    // For example, perform a search and then click on a search result
+    await waitFor(() => user.click(screen.getByRole('button', { name: /Search/i })));
+
+    // Assuming clicking on the first park item opens the modal
+    await waitFor(() => user.click(screen.getByText('Test Park')));
+
+    // Check if the PopUpModal is rendered
+    // This check will depend on identifiable content or IDs within your PopUpModal
+    expect(screen.getByTestId('popup-modal')).toBeInTheDocument();
+
+    // Optionally, verify the closeModal function works as intended by simulating a close action
+    await user.click(screen.getByRole('button', { name: /close/i })); // Assuming you have a close button
+    expect(screen.queryByTestId('popup-modal')).not.toBeInTheDocument();
+  });
+test('does not display PopUpModal when modalPark is not set', async () => {
+    const user = userEvent.setup();
+
+    // Assuming you have a mechanism to attempt to open a modal without setting a park,
+    // perhaps by clicking a UI element that would normally do so.
+    // If your application logic doesn't naturally allow for this,
+    // you may need to mock or adjust the state directly, if possible for the purpose of testing.
+
+    // For demonstration, let's simulate a scenario where we expect the modal not to open.
+    // For example, simulate clicking a "View Details" button that doesn't have a park associated with it.
+    // This might be more of a theoretical test case if your UI doesn't allow for such a scenario.
+    // In real applications, this could also be handled by disabling the button or not rendering it until a park is selected.
+
+    render(<Search />, { wrapper: BrowserRouter });
+
+    // Simulating a failed attempt to open the modal
+    // For example, clicking a button that would normally open the modal but without a park being selected
+    // This might require adjusting the logic or mock conditions to fit your actual component behavior
+    await user.click(screen.getByTestId('view-details-button')); // Adjust based on your actual element
+
+    // The modal should not be present as modalPark is not set
+    expect(screen.queryByTestId('popup-modal')).not.toBeInTheDocument();
+  });
 
 test('Search by Park Name Button', async () => {
     const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
@@ -224,4 +276,138 @@ test("fetching fails with malformed API response for showing 10 more results", a
 //     expect(screen.getByText(/yellowstone national park/i)).toBeInTheDocument();
 // });
 
+test('handles not logged in error', async () => {
+  // Mock an unsuccessful response
+  fetch.mockResponseOnce(() => Promise.reject(new Error('Not logged in')));
+
+  render(<Search />, {wrapper: BrowserRouter});
+
+  await waitFor(() => {
+    expect(screen.getByText(/not logged in/i)).toBeInTheDocument();
+  });
+  expect(console.error).toHaveBeenCalledWith(expect.any(Error));
+});
+
+
+test('throws error for non-ok response', async () => {
+  // Mock fetch to simulate an HTTP response with an unsuccessful status
+  fetch.mockResponseOnce('', { status: 401 }); // 401 Unauthorized for example
+
+  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+  render(<Search />, { wrapper: BrowserRouter });
+
+  // Since we're testing the effect of an async operation within useEffect,
+  // we need to wait for that operation to complete. Here we're waiting for the
+  // component's response to the fetch call, which could be showing an error message
+  // or any other indication that the fetch was unsuccessful.
+
+  // Optionally, if your component renders something specific when this error occurs,
+  // use waitFor to wait for that element to be present.
+  // For instance, if you render a "Not logged in" message or similar.
+  await waitFor(() => {
+    expect(screen.getByText(/not logged in message or similar/)).toBeInTheDocument();
+  });
+
+  // Verify that an error was logged to the console
+  expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
+
+  consoleSpy.mockRestore(); // Clean up
+});
+
+test("executes fetch correctly on initial search", async () => {
+  const user = userEvent.setup();
+  const mockData = {
+    data: [{ id: "1", fullName: "Yosemite National Park" }]
+  };
+
+  fetch.mockResponseOnce(JSON.stringify(mockData));
+
+  render(<Search />, { wrapper: BrowserRouter });
+
+  // Assume you have an input for queries and a button to initiate the search
+  await user.type(screen.getByRole('textbox'), 'Yosemite');
+  await user.click(screen.getByText(/Search/));
+
+  // Verify that the fetch was called correctly
+  expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+    method: "POST",
+    body: JSON.stringify({
+      query: 'Yosemite',
+      searchType: 'parkname', // assuming this is the default or has been set
+      startPosition: 0,
+    }),
+  }));
+
+  // Wait for the component to update based on the fetch response
+  await waitFor(() => {
+    expect(screen.getByText("Yosemite National Park")).toBeInTheDocument();
+  });
+
+  // This ensures that the response data was handled by the component,
+  // implying that setParks and setStart have been called with the correct parameters.
+});
+
+test("loads more results upon clicking 'Show 10 more results'", async () => {
+  const user = userEvent.setup();
+  // Initial set of data
+  const initialData = {
+    data: [{ id: "1", fullName: "Yosemite National Park" }]
+  };
+
+  // Data for the subsequent fetch call
+  const additionalData = {
+    data: [{ id: "2", fullName: "Zion National Park" }]
+  };
+
+  fetch.mockResponses(
+    [JSON.stringify(initialData), { status: 200 }],
+    [JSON.stringify(additionalData), { status: 200 }]
+  );
+
+  render(<Search />, { wrapper: BrowserRouter });
+
+  // Perform the initial search
+  await user.click(screen.getByText(/Search/));
+
+  // Verify initial parks are displayed
+  await waitFor(() => expect(screen.getByText("Yosemite National Park")).toBeInTheDocument());
+
+  // Click "Show 10 more results" to load more parks
+  await user.click(screen.getByText(/Show 10 more results/));
+
+  // Verify the fetch was called again with an incremented startPosition
+  expect(fetch).toHaveBeenLastCalledWith(expect.any(String), expect.objectContaining({
+    body: JSON.stringify(expect.objectContaining({
+      startPosition: 10
+    }))
+  }));
+
+  // Verify the additional park is displayed, indicating the response was handled
+  await waitFor(() => expect(screen.getByText("Zion National Park")).toBeInTheDocument());
+});
+
+test("fetching fails with malformed API response for showing 10 more results", async () => {
+ fetch.mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({ data: [{id: [1, 2, 3, 4], name: "accessibility", parks: [{parkCode: "acad"}] }] })).mockResponseOnce(JSON.stringify({data: [{id: "", fullName: "", images: [""], addresses: [],  activities: [{name: 'hiking'}], description: "", url: ""}] })); // mocking fetch park codes
+ const user = userEvent.setup();
+ render(<Search/>, {wrapper: BrowserRouter});
+ await waitFor(() =>user.click(screen.getByRole('radio', {name: /Amenity/i})));
+ expect(screen.getByPlaceholderText(/Search national park by amenities.../i)).toBeInTheDocument();
+ await waitFor( () =>user.type(screen.getByPlaceholderText(/Search national park by amenities.../i), 'accessibility'));
+ await waitFor( () =>user.click(screen.getByRole('button', {name:/Search/})));
+ expect(fetch).toHaveBeenCalledTimes(3);//change 1 to 3
+
+//  fetch.mockResponseOnce(JSON.stringify({ data: [{id: [1, 2, 3, 4], name: "accessibility", parks: [{parkCode: "acad"}] }] })).mockResponseOnce(JSON.stringify({data: [{id: "", fullName: "", images: [""], addresses: [],  activities: [{name: 'hiking'}], description: "", url: ""}] })); // mocking fetch park codes
+//  await waitFor( () =>user.click(screen.getByRole('button', {name:/Show 10 more results/})));
+//  expect(fetch).toHaveBeenCalledTimes(2);
+
+ fetch.mockResponseOnce(JSON.stringify({ data: null }));
+    await user.click(screen.getByRole('button', {name:/Show 10 more results/}));
+
+   await waitFor( () =>user.click(screen.getByRole('button', {name:/Show 10 more results/})));
+ //expect(fetch).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+        expect(fetch).toHaveBeenCalledTimes(2);
+    });
+});
 

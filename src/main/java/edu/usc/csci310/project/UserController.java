@@ -1,9 +1,6 @@
 package edu.usc.csci310.project;
 
-import edu.usc.csci310.project.exceptions.InvalidPasswordException;
-import edu.usc.csci310.project.exceptions.LoginFailedException;
-import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
-
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,42 +9,39 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
-
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestParam String username,
+    public RegisterResponse registerUser(@RequestParam String username,
                                           @RequestParam String password,
-                                          @RequestParam String confirmPassword) {
-        try {
-            User user = new User(username, password);
-            RegisterResponse response = userService.registerUser(user, confirmPassword);
-            return ResponseEntity.ok(response);
-        } catch (UserAlreadyExistsException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (InvalidPasswordException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+                                          @RequestParam String confirmPassword)
+    {
+        User user = new User(username, password);
+        return userService.registerUser(user, confirmPassword);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestParam String username,
-                                       @RequestParam String password) {
-        try {
-            LoginResponse response = userService.loginUser(username, password);
-            return ResponseEntity.ok(response);
-        } catch (LoginFailedException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+    public LoginResponse loginUser(HttpSession session,
+                                   @RequestParam String username,
+                                   @RequestParam String password)
+    {
+        LoginResponse response = userService.loginUser(username, password);
+        if ("Login Successful".equals(response.getMessage())) {
+            session.setAttribute("username", username);
         }
-
+        return response;
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception ex) {
-        return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    @GetMapping("/current-user")
+    public ResponseEntity<String> getCurrentUser(HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        return username != null ? ResponseEntity.ok(username) : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+    }
+
+    @PostMapping("/logout")
+    public String logoutUser(HttpSession session) {
+        session.invalidate();
+        return "Logged out successfully";
     }
 }

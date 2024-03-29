@@ -1,5 +1,6 @@
 package edu.usc.csci310.project;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -71,6 +72,30 @@ public class UserControllerTest {
     }
 
     @Test
+    public void logoutUserTest() throws Exception {
+        mockMvc.perform(post("/api/users/logout")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Logged out successfully")));
+    }
+
+    @Test
+    public void GetCurrentUserTest() throws Exception {
+        String username = "user";
+        mockMvc.perform(get("/api/users/current-user")
+                        .sessionAttr("username", username))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(username)));
+    }
+
+    @Test
+    public void getNoCurrentUserTest() throws Exception {
+        mockMvc.perform(get("/api/users/current-user"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("User not logged in")));
+    }
+
+    @Test
     public void registerUser_ShouldReturnConflict_WhenUserAlreadyExists() throws Exception {
         // Arrange
         when(userService.registerUser(any(User.class), anyString()))
@@ -133,4 +158,3 @@ public class UserControllerTest {
                 .andExpect(content().string(containsString("An unexpected error occurred: Unexpected error")));
     }
 }
-
