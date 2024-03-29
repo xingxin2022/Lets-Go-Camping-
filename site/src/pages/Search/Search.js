@@ -4,7 +4,6 @@ import { useState } from "react";
 
 
 
-const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
 
 const stateCodes = {
   Alabama: "AL",
@@ -197,12 +196,17 @@ function Search() {
 //  }
 
   return (
-    <div>
-      <Header />
+      <div>
+          <Header/>
 
-      {/* <label htmlFor="searchInput">Search:</label> */}
+          <br></br>
+          <br></br>
+          <br></br>
+          <br></br>
 
-      {/* <select
+          {/* <label htmlFor="searchInput">Search:</label> */}
+
+          {/* <select
         id="searchType"
         value={searchType}
         onChange={(e) => setSearchType(e.target.value)}
@@ -213,124 +217,124 @@ function Search() {
         <option value="activities">Activity</option>
       </select> */}
 
-      <div style={{ textAlign: "center" }}>
-        <label htmlFor="searchType">Search By:</label>
-        <label>
+          <div style={{textAlign: "center"}}>
+              <label htmlFor="searchType">Search By:</label>
+              <label>
+                  <input
+                      type="radio"
+                      id="parkName"
+                      name="searchType"
+                      value="parkname"
+                      checked={searchType === "parkname"}
+                      onChange={(e) => setSearchType(e.target.value)}
+                  />
+                  Park Name
+              </label>
+
+              <label>
+                  <input
+                      type="radio"
+                      id="amenity"
+                      name="searchType"
+                      value="amenities"
+                      checked={searchType === "amenities"}
+                      onChange={(e) => setSearchType(e.target.value)}
+                  />
+                  Amenity
+              </label>
+
+              <label>
+                  <input
+                      type="radio"
+                      id="state"
+                      name="searchType"
+                      value="states"
+                      checked={searchType === "states"}
+                      onChange={(e) => setSearchType(e.target.value)}
+                  />
+                  State
+              </label>
+
+              <label>
+                  <input
+                      type="radio"
+                      id="activity"
+                      name="searchType"
+                      value="activities"
+                      checked={searchType === "activities"}
+                      onChange={(e) => setSearchType(e.target.value)}
+                  />
+                  Activity
+              </label>
+          </div>
+
           <input
-            type="radio"
-            id="parkName"
-            name="searchType"
-            value="parkname"
-            checked={searchType === "parkname"}
-            onChange={(e) => setSearchType(e.target.value)}
+              style={{textAlign: "center"}}
+              id="searchInput"
+              className="search"
+              type="text"
+              placeholder={`Search national park by ${searchType}...`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
           />
-          Park Name
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            id="amenity"
-            name="searchType"
-            value="amenities"
-            checked={searchType === "amenities"}
-            onChange={(e) => setSearchType(e.target.value)}
-          />
-          Amenity
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            id="state"
-            name="searchType"
-            value="states"
-            checked={searchType === "states"}
-            onChange={(e) => setSearchType(e.target.value)}
-          />
-          State
-        </label>
-
-        <label>
-          <input
-            type="radio"
-            id="activity"
-            name="searchType"
-            value="activities"
-            checked={searchType === "activities"}
-            onChange={(e) => setSearchType(e.target.value)}
-          />
-          Activity
-        </label>
-      </div>
-
-      <input
-        style={{ textAlign: "center" }}
-        id="searchInput"
-        className="search"
-        type="text"
-        placeholder={`Search national park by ${searchType}...`}
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
 
 
-       <button
+          <button
               onClick={() => {
-                fetch("/search-parks", {
-                  method: "Post",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    query: query,
-                    searchType: searchType,
-                    startPosition: start,
-                  }),
-                })
-                  .then((response) => response.json())
-                  .then((response) => {
-                    if (response?.data) {
-                      setParks(response.data);
-                    }
-                  });
+                  fetch("/search-parks", {
+                      method: "Post",
+                      headers: {
+                          "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                          query: query,
+                          searchType: searchType,
+                          startPosition: start,
+                      }),
+                  })
+                      .then((response) => response.json())
+                      .then((response) => {
+                          if (response?.data) {
+                              setParks(response.data);
+                          }
+                      });
               }}
-            >
+          >
               Search
-            </button>
-      <div className="search-results">
-        <ParkList parks={parks} />
-        {/* // {isLoading && <Loader />}
+          </button>
+          <div className="search-results">
+              <ParkList parks={parks}/>
+              {/* // {isLoading && <Loader />}
         // {!isLoading && !error && parks && <ParkList parks={parks} />}
         // {error && <ErrorMessage message={error} />} */}
-      </div>
-      {parks && parks.length > 0 && (
+          </div>
+          {parks && parks.length > 0 && (
 //        <button onClick={handleMoreResults}> Show 10 more results </button>
-         <button
-                onClick={() => {
-                  fetch("/search-parks", {
-                    method: "Post",
-                    headers: {
-                      "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                      query: query,
-                      searchType: searchType,
-                      startPosition: start,
-                    }),
-                  })
-                    .then((response) => response.json())
-                    .then((response) => {
-                      if (response?.data) {
-                        setParks( [...parks, ...response.data] );
-                      }
-                    });
-                }}
+              <button
+                  onClick={() => {
+                      fetch("/search-parks", {
+                          method: "Post",
+                          headers: {
+                              "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                              query: query,
+                              searchType: searchType,
+                              startPosition: start,
+                          }),
+                      })
+                          .then((response) => response.json())
+                          .then((response) => {
+                              if (response?.data) {
+                                  setParks([...parks, ...response.data]);
+                              }
+                          });
+                  }}
               >
-                Show 10 more results
+                  Show 10 more results
               </button>
-      )}
-    </div>
+          )}
+      </div>
   );
 }
 

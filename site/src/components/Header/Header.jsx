@@ -5,9 +5,10 @@ import styles from './Header.module.css';
 
 function Header() {
 
-    //const navigate = useNavigate(); // Initialize useNavigate hook
+    const navigate = useNavigate(); // Initialize useNavigate hook
 
-    //const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
+    const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
+    const navigateToHome = () => navigate('/'); //
 
     return (
         <header className={styles.header} data-testid="header">
@@ -16,8 +17,8 @@ function Header() {
             <h1 className={styles.title}>Let's Go Camping!</h1>
             <nav>
                 <ul className={styles.navList}>
-                    <li className={styles.navItem}>Log-In</li>
-                    <li className={styles.navItem}>Search</li>
+                    <li className={styles.navItem} onClick={navigateToHome} data-testid="toHome">Home</li>
+                    <li className={styles.navItem} onClick={navigateToSearch} data-testid="toSearch">Search</li>
                     <li className={styles.navItem}>Suggest</li>
                     <li className={styles.navItem}>Contact</li>
                     <li className={styles.navItem}>Example</li>

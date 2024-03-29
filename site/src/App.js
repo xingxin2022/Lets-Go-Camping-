@@ -2,7 +2,8 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import LogIn from "./pages/LogIn/LogIn";
-//import Search from "./pages/Search/Search";
+import Search from "./pages/Search/Search"
+import SignUp from "./pages/SignUp/SignUp";
 
 function App(){
     return (
@@ -10,7 +11,8 @@ function App(){
             <Routes>
                 <Route path="/" element={<LogIn />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
-                {/*<Route path="/search" element={<Search />} />*/}
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/search" element={<Search />} />
             </Routes>
         </div>
     )
