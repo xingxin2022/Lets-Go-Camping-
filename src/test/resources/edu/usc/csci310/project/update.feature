@@ -23,6 +23,52 @@ Feature: Update and review a favorite park list
     Then I should be taken to the park details page
     And the park details should be displayed
 
+  Scenario: order of favorite park list should be saved
+    Given I change the order of the favorite park list
+    When I visit the search page
+    And I return to the favorite park list page
+    Then I should see the list with the updated order
+
+  Scenario: pop up to confirm delete a park from the list
+    Given I am on the favorite park list page
+    When I click the delete button for a park
+    Then I click confirm on the pop-up to confirm deletion
+    And the park should be removed from the list
+
+  Scenario: cancel delete a park from the list
+    Given I am on the favorite park list page
+    When I click the delete button for a park
+    Then I click cancel on the pop-up to cancel deletion
+    And the park should remain in the list
+
+  Scenario: favorite list defaults to being private
+    Given I have a favorite park list
+    When I visit the favorite park list page
+    Then the list should be private by default
+
+  Scenario: changing favorite list to public
+    Given I am on the favorite park list page
+    When I click the make public button
+    Then the list should be public
+    And the list can be used to compare with others
+
+  Scenario: changing favorite list to private
+    Given I am on the favorite park list page
+    When I click the make private button
+    Then the list should be private
+    And the list can no longer be used to compare with others
+
+  Scenario: changing favorite list to private saves
+    Given I change the favorite list to private
+    When I visit the search page
+    And I return to the favorite park list page
+    Then the list should be private
+
+
+
+
+
+
 
 
 
