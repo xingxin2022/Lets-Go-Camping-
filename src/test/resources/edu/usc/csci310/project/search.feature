@@ -96,3 +96,29 @@ Scenario: Park is already in favorites
     Then I should see the message "Park is already in favorites"
     And the park should not be added to my favorites list
 
+Scenario: Clicking enter key triggers search
+    Given I am on the search page
+    When I enter "Yosemite" into search box
+    And press the enter key
+    Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
+
+Scenario: Clicking search button given input exists
+    Given I am on the search page
+    When I enter "Yosemite" into search box
+    And click the search button
+    Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
+
+Scenario: Add to favorites button is functional
+    Given I am on the search results page
+    When I hover over the plus button next to a park
+    And click the "add to favorites" button
+    Then I should see the message "Park added to favorites"
+    And the park should be added to my favorites list
+
+Scenario: Cancelling add to favorites
+    Given I am on the search results page
+    When I click the "add to favorites" button on a park
+    And click the "cancel" button
+    Then I should see the message "Add to favorites cancelled
+    And the park should not be added to my favorites list
+
