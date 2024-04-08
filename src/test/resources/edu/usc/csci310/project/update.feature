@@ -63,12 +63,3 @@ Feature: Update and review a favorite park list
     When I visit the search page
     And I return to the favorite park list page
     Then the list should be private
-
-
-
-
-
-
-
-
-
