@@ -1,206 +1,207 @@
 import React from 'react';
-import { render, fireEvent, waitFor, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Park from './Park'; // Adjust the import path according to your project structure
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import Park from './Park';
 
-// Mocking the global fetch function
-beforeAll(() => {
-  global.fetch = jest.fn();
-});
-
-beforeEach(() => {
-  fetch.mockClear();
-  jest.useFakeTimers();
-});
-afterEach(() => {
-  jest.runOnlyPendingTimers();
-  jest.useRealTimers();
-});
+global.fetch = jest.fn();
 
 const parkMock = {
   fullName: 'Yosemite National Park',
-  isFavorite: false,
   parkCode: 'yose',
-  images: [{ url: 'https://example.com/yosemite.jpg', altText: 'Yosemite Valley' }],
-  addresses: [{
-    line1: '123 Park St',
-    city: 'Park City',
-    stateCode: 'CA',
-    countryCode: 'USA'
-  }]
+  images: [{ url: 'test_image_url', altText: 'test_image_alt' }],
+  addresses: [
+    { line1: '123 Main St', city: 'Park City', stateCode: 'PC', countryCode: 'USA' },
+  ],
+  isFavorite: false,
 };
 
-const setup = (overrideProps = {}) => {
-  const props = {
-    park: parkMock,
-    onSetShowPark: jest.fn(),
-    currentUser: 'testUser',
-    setUserFavorites: jest.fn(),
-    userFavorites: [],
-    ...overrideProps
-  };
-  return render(<Park {...props} />);
+const parkWithFavorite = {
+  fullName: 'Yosemite National Park',
+  parkCode: 'yose',
+  images: [{ url: 'test_image_url', altText: 'test_image_alt' }],
+  addresses: [{ line1: '123 Main St', city: 'Park City', stateCode: 'PC', countryCode: 'USA' }],
+  isFavorite: true,
 };
 
-test('renders park information correctly', () => {
-  setup();
+const parkWithoutFavorite = {
+  ...parkWithFavorite,
+  isFavorite: false,
+};
 
-  expect(screen.getByText('Yosemite National Park')).toBeInTheDocument();
-  expect(screen.getByAltText('Yosemite Valley')).toHaveAttribute('src', 'https://example.com/yosemite.jpg');
-  expect(screen.getByText('123 Park St, Park City, CA, USA')).toBeInTheDocument();
+const parkWithoutImageAndAddress = {
+  fullName: 'Yosemite National Park',
+  parkCode: 'yose',
+  images: [],
+  addresses: [],
+  isFavorite: false,
+};
+
+const onSetShowParkMock = jest.fn();
+const setUserFavoritesMock = jest.fn();
+const userFavoritesMock = [];
+
+beforeEach(() => {
+  fetch.mockClear();
+  onSetShowParkMock.mockClear();
+  setUserFavoritesMock.mockClear();
 });
 
-test('adds park to favorites successfully', async () => {
+test('Park component adds to favorites on button click', async () => {
   fetch.mockResolvedValueOnce({
     ok: true,
     json: async () => ({ message: 'Park successfully added to favorite list' }),
   });
 
-  const { rerender, props } = setup();
+  jest.useFakeTimers();
 
-  fireEvent.click(screen.getByText('Add to favorite list'));
+  render(
+    <Park
+      park={parkMock}
+      onSetShowPark={onSetShowParkMock}
+      currentUser={'testUser'}
+      setUserFavorites={setUserFavoritesMock}
+      userFavorites={userFavoritesMock}
+    />
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
     expect(screen.getByText('Park successfully added to favorite list')).toBeInTheDocument();
   });
 
-  // Verify setUserFavorites was called correctly
-  expect(props.setUserFavorites).toHaveBeenCalledWith([...props.userFavorites, parkMock.parkCode]);
+  act(() => {
+      jest.advanceTimersByTime(3000);
+    });
 
-  // Simulate the park is already in favorites for subsequent test
-  props.userFavorites.push(parkMock.parkCode);
-  rerender(<Park {...props} />);
+    // Now the confirmation message should have disappeared
+  expect(screen.queryByText('Park successfully added to favorite list')).toBeNull();
+
+
+  expect(fetch).toHaveBeenCalledWith("/api/search/add-favorite", expect.objectContaining({
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userName: 'testUser',
+      parkCode: parkMock.parkCode,
+    }),
+  }));
+
+  expect(setUserFavoritesMock).toHaveBeenCalledWith([...userFavoritesMock, parkMock.parkCode]);
 });
 
-test('shows already in favorites message', async () => {
+
+test('Already favorited when adds to favorites on button click', async () => {
   fetch.mockResolvedValueOnce({
     ok: true,
     json: async () => ({ message: 'Park already in the favorite list' }),
   });
 
-  setup({ userFavorites: [parkMock.parkCode] }); // Assuming the park is already a favorite
+  jest.useFakeTimers();
 
-  fireEvent.click(screen.getByText('Add to favorite list'));
+  render(
+    <Park
+      park={parkMock}
+      onSetShowPark={onSetShowParkMock}
+      currentUser={'testUser'}
+      setUserFavorites={setUserFavoritesMock}
+      userFavorites={userFavoritesMock}
+    />
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
     expect(screen.getByText('Park already in the favorite list')).toBeInTheDocument();
   });
-});
 
-test('handles fetch error', async () => {
-  fetch.mockRejectedValueOnce(new Error('Network Error'));
-
-  setup();
-
-  fireEvent.click(screen.getByText('Add to favorite list'));
-
-  await waitFor(() => {
-    expect(screen.getByText('Failed to add park to favorites')).toBeInTheDocument();
-  });
-});
-
-test('invokes onSetShowPark when park name is clicked', () => {
-  const { props } = setup();
-
-  fireEvent.click(screen.getByText('Yosemite National Park'));
-  expect(props.onSetShowPark).toHaveBeenCalledWith(parkMock);
-});
-
-test('displays favorite icon when park is a favorite', () => {
-  const park = {
-    fullName: 'Yellowstone National Park',
-    isFavorite: true,
-    images: [{ url: 'some-url', altText: 'some-alt-text' }],
-  };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser={null} setUserFavorites={() => {}} userFavorites={[]} />);
-  expect(screen.getByText('🌟️')).toBeInTheDocument();
-});
-
-test('does not display favorite icon when park is not a favorite', () => {
-  const park = {
-    fullName: 'Yellowstone National Park',
-    isFavorite: false,
-    images: [{ url: 'some-url', altText: 'some-alt-text' }],
-  };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser={null} setUserFavorites={() => {}} userFavorites={[]} />);
-  expect(screen.queryByText('🌟️')).not.toBeInTheDocument();
-});
-
-test('displays image with correct src and alt text', () => {
-  const park = {
-    fullName: 'Yellowstone National Park',
-    isFavorite: false,
-    images: [{ url: 'image-url', altText: 'Image description' }],
-  };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser={null} setUserFavorites={() => {}} userFavorites={[]} />);
-  const image = screen.getByRole('img');
-  expect(image).toHaveAttribute('src', 'image-url');
-  expect(image).toHaveAttribute('alt', 'Image description');
-});
-
-test('displays fallback image src and alt text when no image is provided', () => {
-  const park = {
-    fullName: 'Yellowstone National Park',
-    isFavorite: false,
-    images: [],
-  };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser={null} setUserFavorites={() => {}} userFavorites={[]} />);
-  const image = screen.getByRole('img');
-  expect(image).toHaveAttribute('src', '');
-  expect(image).toHaveAttribute('alt', 'Park image');
-});
-
-test('handles adding to favorite list successfully', async () => {
-  fetch.mockResolvedValueOnce({ json: () => Promise.resolve({ message: "Park successfully added to favorite list" }) });
-  const park = { parkCode: 'yellowstone', fullName: 'Yellowstone National Park', images: [] };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser="user" setUserFavorites={() => {}} userFavorites={[]} />);
-  userEvent.click(screen.getByText('Add to favorite list'));
-
-  await waitFor(() => {
-    expect(screen.getByText('Park successfully added to favorite list')).toBeInTheDocument();
-  });
-});
-
-test('handles error when adding to favorite list', async () => {
-  fetch.mockRejectedValue(new Error('Failed to add to favorite list'));
-  const park = { parkCode: 'yellowstone', fullName: 'Yellowstone National Park', images: [] };
-
-  render(<Park park={park} onSetShowPark={() => {}} currentUser="user" setUserFavorites={() => {}} userFavorites={[]} />);
-  userEvent.click(screen.getByText('Add to favorite list'));
-
-  await waitFor(() => {
-    expect(screen.getByText('Failed to add to favorite list')).toBeInTheDocument(); // Adjust based on actual error handling
-  });
-});
-
-test('clears favorite confirmation message after a delay', async () => {
-  fetch.mockResolvedValueOnce({ json: () => Promise.resolve({ message: "Park successfully added to favorite list" }) });
-  const park = { parkCode: 'yellowstone', fullName: 'Yellowstone National Park', images: [] };
-
-  const { rerender } = render(
-    <Park park={park} onSetShowPark={() => {}} currentUser="user" setUserFavorites={() => {}} userFavorites={[]} />
-  );
-
-  userEvent.click(screen.getByText('Add to favorite list'));
-
-  // Wait for the API call to resolve and the state to update
-  await waitFor(() => {
-    expect(screen.getByText('Park successfully added to favorite list')).toBeInTheDocument();
+  act(() => {
+      jest.advanceTimersByTime(3000);
   });
 
-  // Advance timers by 3000 milliseconds
-  jest.advanceTimersByTime(3000);
+  expect(screen.queryByText('Park already in the favorite list')).toBeNull();
 
-  // Rerender the component to apply the state update
-  rerender(
-    <Park park={park} onSetShowPark={() => {}} currentUser="user" setUserFavorites={() => {}} userFavorites={[]} />
-  );
+  expect(fetch).toHaveBeenCalledWith("/api/search/add-favorite", expect.objectContaining({
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userName: 'testUser',
+      parkCode: parkMock.parkCode,
+    }),
+  }));
 
-  // The confirmation message should now be cleared
-  expect(screen.queryByText('Park successfully added to favorite list')).not.toBeInTheDocument();
+   jest.useRealTimers();
+});
+
+test('handles fetch failure', async () => {
+     fetch.mockRejectedValueOnce(new Error('Network error'));
+
+      render(
+        <Park
+          park={parkMock}
+          onSetShowPark={onSetShowParkMock}
+          currentUser={'testUser'}
+          setUserFavorites={setUserFavoritesMock}
+          userFavorites={userFavoritesMock}
+        />
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: '+' }));
+        const consoleSpy = jest.spyOn(console, 'error');
+        await waitFor(() => {
+            expect(consoleSpy).toHaveBeenCalledTimes(1);
+            expect(consoleSpy).toHaveBeenCalledWith(expect.any(String), expect.any(Error));
+        });
+  // Clean up the console spy to avoid memory leaks
+        consoleSpy.mockRestore();
+})
+
+test('show pop up modal', async () => {
+    render(
+        <Park
+          park={parkMock}
+          onSetShowPark={onSetShowParkMock}
+          currentUser={'testUser'}
+          setUserFavorites={setUserFavoritesMock}
+          userFavorites={userFavoritesMock}
+        />
+    );
+
+    fireEvent.click(screen.getByText(parkMock.fullName));
+    expect(onSetShowParkMock).toHaveBeenCalledWith(parkMock);
+})
+
+test('renders a star if the park is a favorite', () => {
+  render(<Park park={parkWithFavorite} onSetShowPark={onSetShowParkMock}
+                                                 currentUser={'testUser'}
+                                                 setUserFavorites={setUserFavoritesMock}
+                                                 userFavorites={userFavoritesMock}/>);
+  expect(screen.getByText(/🌟/)).toBeInTheDocument();
+});
+
+test('renders "Park image" alt text if an image is available', () => {
+  render(<Park park={parkWithFavorite} onSetShowPark={onSetShowParkMock}
+                                                 currentUser={'testUser'}
+                                                 setUserFavorites={setUserFavoritesMock}
+                                                 userFavorites={userFavoritesMock} />);
+  expect(screen.getByAltText('test_image_alt')).toBeInTheDocument();
+});
+
+test('renders a default alt text if an image is not available', () => {
+  render(<Park park={parkWithoutImageAndAddress} onSetShowPark={onSetShowParkMock}
+                                                           currentUser={'testUser'}
+                                                           setUserFavorites={setUserFavoritesMock}
+                                                           userFavorites={userFavoritesMock} />);
+  expect(screen.getByAltText('Park image')).toBeInTheDocument();
+});
+
+test('renders "Address not available" if the address is not available', () => {
+  render(<Park park={parkWithoutImageAndAddress} onSetShowPark={onSetShowParkMock}
+                                                           currentUser={'testUser'}
+                                                           setUserFavorites={setUserFavoritesMock}
+                                                           userFavorites={userFavoritesMock} />);
+  expect(screen.getByText(/Address not available/i)).toBeInTheDocument();
 });

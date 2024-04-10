@@ -1,7 +1,7 @@
 import "./Search.css";
 import Header from "../../components/Header/Header.jsx";
 import { useState, useEffect } from "react";
-import PopUpModal from '../../components/PopUpModal.js';
+import PopUpModal from '../../components/PopUpModal/PopUpModal';
 import ParkList from "../../components/ParkList/ParkList";
 //import Button from "react-bootstrap/Button";
 //import "bootstrap/dist/css/bootstrap.min.css";
@@ -119,7 +119,7 @@ function Search() {
   const [currentUser, setCurrentUser] = useState(null);
   const [userFavorites, setUserFavorites] = useState([]);
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [modalPark, setModalPark] = useState(null);
+  const [modalPark, setModalPark] = useState([]);
   const [displayParks, setDisplayParks] = useState([]);
 
 
@@ -137,8 +137,41 @@ function Search() {
         openModal();
     };
 
+  const handleClick = (e) => {
+        console.log("Clicked", e.target);
+        const searchType = e.target.getAttribute('data-type');
+        const query = e.target.getAttribute('data-query');
+        setQuery(query);
+        setSearchType(searchType);
+        closeModal()
+        performSearch(searchType, query, 0);
+  };
 
+  const performSearch = (searchType, query, start) => {
+        fetch("/api/search/search-parks", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                query: query,
+                searchType: searchType,
+                startPosition: start,
+            }),
+        })
+            .then((response) => response.json())
+            .then((response) => {
+                if (response?.data) {
+                    const updatedParks = start === 0 ? response.data : [...parks, ...response.data];
+                    setParks(updatedParks);
+                    setStart(start);
 
+//                    setParks(response.data);
+//                    console.log(response.data);
+//                    setStart(start)
+                }
+            });
+  }
 
 
   useEffect(() => {
@@ -174,7 +207,8 @@ function Search() {
                      },
                 });
                 const favorites = await response.json();
-                setUserFavorites(favorites || []);
+                setUserFavorites(favorites );
+
              } catch (error) {
                 console.error('Failed to fetch user favorites', error);
              }
@@ -262,27 +296,8 @@ function Search() {
           />
 
           <button
-              onClick={() => {
-                  const newStart = 0;
-                  fetch("/api/search/search-parks", {
-                      method: "Post",
-                      headers: {
-                          "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({
-                          query: query,
-                          searchType: searchType,
-                          startPosition: newStart ,
-                      }),
-                  })
-                      .then((response) => response.json())
-                      .then((response) => {
-                          if (response?.data) {
-                              setParks(response.data);
-                              setStart(newStart)
-                          }
-                      });
-              }}
+              onClick={() => performSearch(searchType, query, 0)
+              }
           >
               Search
           </button>
@@ -292,31 +307,14 @@ function Search() {
               handleShowPark} currentUser={currentUser} setUserFavorites={setUserFavorites} userFavorites={userFavorites}/>
           </div>
           {modalIsOpen && modalPark && (
-              <PopUpModal modalIsOpen={modalIsOpen} closeModal={closeModal} park={modalPark}  />
+              <PopUpModal modalIsOpen={modalIsOpen} closeModal={closeModal} park={modalPark} handleClick={handleClick}  />
           )}
 
           {parks && parks.length > 0 && (
               <button
                   onClick={() => {
                       const newStart = start + 10;
-                      fetch("/api/search/search-parks", {
-                          method: "Post",
-                          headers: {
-                              "Content-Type": "application/json",
-                          },
-                          body: JSON.stringify({
-                              query: query,
-                              searchType: searchType,
-                              startPosition: newStart,
-                          }),
-                      })
-                          .then((response) => response.json())
-                          .then((response) => {
-                              if (response?.data) {
-                                  setParks([...parks, ...response.data]);
-                                  setStart(newStart);
-                              }
-                          });
+                      performSearch(searchType, query, newStart);
                   }}
               >
                   Show 10 more results
@@ -326,73 +324,5 @@ function Search() {
   );
 }
 
-//function ParkList({ parks, onSetShowPark, currentUser, setUserFavorites, userFavorites }) {
-//  const uniqueParks = Array.from(
-//    new Map(parks.map((park) => [park.id, park])).values()
-//  );
-//  return (
-//    <div className="parks-container">
-//      {uniqueParks.map((park) => (
-//        <Park park={park} key={park.id} onSetShowPark = {onSetShowPark} currentUser={currentUser} setUserFavorites={setUserFavorites} userFavorites={userFavorites} />
-//      ))}
-//    </div>
-//  );
-//}
-//
-//function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorites }) {
-//const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
-//  return (
-//  <div class="park-container">
-//      <h3 className="park-name" onClick = {()=>onSetShowPark(park)}>
-//      {park.fullName}  {park.isFavorite ? " 🌟️ " : ""}
-//      </h3>
-//      <img
-//        src={park.images && park.images[0] ? park.images[0].url : ""}
-//        alt={
-//          park.images && park.images[0] ? park.images[0].altText : "Park image"
-//        }
-//      />
-//      <p>Address: {park.addresses && park.addresses[0]
-//                              ? park.addresses[0].line1 + ', '+ park.addresses[0].city + ', '+park.addresses[0].stateCode+', ' + park.addresses[0].countryCode
-//                              : "Address not available"}</p>
-//
-//      <button
-//        onClick={() => {
-//            fetch("/api/search/add-favorite", {
-//                method: "Post",
-//                headers: {
-//                    "Content-Type": "application/json",
-//                },
-//                body: JSON.stringify({
-//                    userName: currentUser,
-//                    parkCode: park.parkCode,
-//                }),
-//            })
-//                .then((response) => response.json())
-//                .then((response) => {
-//                    if (response?.message === "Park successfully added to favorite list") {
-//                        setUserFavorites([...userFavorites, park.parkCode])
-//                    }
-//                    return response;
-//                })
-//                .then((response) => {
-//                    if (response?.message === "Park successfully added to favorite list") {
-//                        setFavoriteConfirmation('Park successfully added to favorite list');
-//                        setTimeout(() => setFavoriteConfirmation(''), 3000);
-//                    }
-//                    if (response?.message === "Park already in the favorite list") {
-//                        setFavoriteConfirmation('Park already in the favorite list');
-//                        setTimeout(() => setFavoriteConfirmation(''), 3000);
-//                    }
-//                })
-//                .catch(error => console.error('Error:', error));
-//        }}
-//      >
-//         Add to favorite list
-//      </button>
-//      {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
-//      </div>
-//  );
-//}
 
 export default Search;

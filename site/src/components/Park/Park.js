@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './Park.css';
 
-function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorites }) {
+function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorites , testId}) {
   const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
   return (
-    <div className="park-container">
+    <div data-testid={testId} className="park-container">
           <h3 className="park-name" onClick = {()=>onSetShowPark(park)}>
           {park.fullName}  {park.isFavorite ? " 🌟️ " : ""}
           </h3>
@@ -21,7 +21,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
           <button
             onClick={() => {
                 fetch("/api/search/add-favorite", {
-                    method: "Post",
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
@@ -50,7 +50,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                     .catch(error => console.error('Error:', error));
             }}
           >
-             Add to favorite list
+             +
           </button>
           {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
           </div>

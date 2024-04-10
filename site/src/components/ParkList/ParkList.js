@@ -8,8 +8,8 @@ function ParkList({ parks, onSetShowPark, currentUser, setUserFavorites, userFav
     );
     return (
       <div className="parks-container">
-        {uniqueParks.map((park) => (
-          <Park park={park} key={park.id} onSetShowPark = {onSetShowPark} currentUser={currentUser} setUserFavorites={setUserFavorites} userFavorites={userFavorites} />
+        {uniqueParks.map((park, index) => (
+          <Park park={park} key={park.id} onSetShowPark = {onSetShowPark} currentUser={currentUser} setUserFavorites={setUserFavorites} userFavorites={userFavorites} testId={`park-item-${index}`} />
         ))}
       </div>
     );
