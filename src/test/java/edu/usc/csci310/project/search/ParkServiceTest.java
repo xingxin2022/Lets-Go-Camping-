@@ -1019,24 +1019,33 @@ void searchParks_JsonProcessingException() throws Exception{
         // Then
         assertEquals("Park successfully added to favorite list", response.getMessage());
     }
-//    @Test
-//    void addFavorite_SQLTimeoutException2() throws Exception {
-//        // Mock the DataSource to return a connection
-//        Connection mockConnection = mock(Connection.class);
-//        when(dataSource.getConnection()).thenReturn(mockConnection);
-//
-//        // Mock the PreparedStatement to throw an SQLTimeoutException
-//        PreparedStatement mockStatement = mock(PreparedStatement.class);
-//        when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
-//        when(mockStatement.executeQuery()).thenThrow(new SQLTimeoutException("Timeout occurred"));
-//
-//        // Call the method to test
-//        assertThrows(SQLTimeoutException.class, () -> {
-//            parkService.addFavorite("user", "parkCode", "parkName", false);
-//        });
-//
-//        // ... additional assertions and verifications ...
-//    }
+    @Test
+    void addFavorite_ResourceCloseException() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+        when(resultSet.getInt(1)).thenReturn(0);
+        when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
+
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
+        when(insertFavoriteStmt.executeUpdate()).thenReturn(0);
+        doThrow(new SQLException("ResultSet close error")).when(resultSet).close();
+        doThrow(new SQLException("CheckFavoriteStmt close error")).when(checkFavoriteStmt).close();
+        doThrow(new SQLException("GetMaxOrderStmt close error")).when(getMaxOrderStmt).close();
+        doThrow(new SQLException("InsertFavoriteStmt close error")).when(insertFavoriteStmt).close();
+        doThrow(new SQLException("Connection close error")).when(connection).close();
+
+        FavoriteResponse response = parkService.addFavorite("user", "parkCode", "parkName", false);
+
+        verify(resultSet).close();
+        verify(checkFavoriteStmt).close();
+        verify(getMaxOrderStmt).close();
+        verify(insertFavoriteStmt).close();
+        verify(connection).close();
+    }
+
 
     @Test
     void addFavorite_NoRowImpacted() throws SQLException {
@@ -1047,12 +1056,10 @@ void searchParks_JsonProcessingException() throws Exception{
         when(resultSet.next()).thenReturn(false);
         when(resultSet.getInt(1)).thenReturn(0);
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
-
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
+        when(resultSet.getInt(1)).thenReturn(0);
 
-        // Here's the key change: expect the exception on executeUpdate() instead of executeQuery()
-        when(insertFavoriteStmt.executeUpdate()).thenReturn(0);
+        when(insertFavoriteStmt.executeUpdate()).thenReturn(1);
 
         // When
         FavoriteResponse result = parkService.addFavorite("user", "parkCode", "parkName", false);
@@ -1072,9 +1079,8 @@ void searchParks_JsonProcessingException() throws Exception{
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
 
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
+        when(resultSet.getInt(1)).thenReturn(0);
 
-        // Here's the key change: expect the exception on executeUpdate() instead of executeQuery()
         when(insertFavoriteStmt.executeUpdate()).thenReturn(0);
 
         // When
@@ -1082,7 +1088,6 @@ void searchParks_JsonProcessingException() throws Exception{
 
         // Then
         assertNotNull(result);
-//        assertEquals("Error when adding favorite park: Timeout occurred", result.getMessage());
     }
     @Test
     void addFavorite_insertFail() throws SQLException {
@@ -1095,15 +1100,12 @@ void searchParks_JsonProcessingException() throws Exception{
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
 
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
+        when(resultSet.getInt(1)).thenReturn(0);
 
-        // Here's the key change: expect the exception on executeUpdate() instead of executeQuery()
         doThrow(new SQLTimeoutException("Timeout occurred")).when(insertFavoriteStmt).executeUpdate();
 
-        // When
         FavoriteResponse result = parkService.addFavorite("user", "parkCode", "parkName", false);
 
-        // Then
         assertNotNull(result);
         assertEquals("Error when adding favorite park: Timeout occurred", result.getMessage());
     }
@@ -1117,15 +1119,12 @@ void searchParks_JsonProcessingException() throws Exception{
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt, getMaxOrderStmt, insertFavoriteStmt);
 
-        // Simulate the park not already being favorited
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false); // Park not in favorites
 
-        // Simulate no max order found
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false); // No max order
 
-        // Simulate the insert
         when(insertFavoriteStmt.executeUpdate()).thenReturn(1); // 1 row updated
 
         FavoriteResponse response = parkService.addFavorite(userName, parkCode, parkName, isPrivate);
@@ -1142,11 +1141,9 @@ void searchParks_JsonProcessingException() throws Exception{
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt, getMaxOrderStmt);
 
-        // Simulate the park not already being favorited
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false); // Park not in favorites
 
-        // Simulate a timeout when getting the max order
         when(getMaxOrderStmt.executeQuery()).thenThrow(new SQLException("Query timeout"));
 
         FavoriteResponse response = parkService.addFavorite(userName, parkCode, parkName, isPrivate);
@@ -1163,7 +1160,6 @@ void searchParks_JsonProcessingException() throws Exception{
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt, getMaxOrderStmt);
 
-        // Simulate the park not already being favorited
         when(checkFavoriteStmt.executeQuery()).thenThrow(new SQLException("Query timeout"));
 
         FavoriteResponse response = parkService.addFavorite(userName, parkCode, parkName, isPrivate);

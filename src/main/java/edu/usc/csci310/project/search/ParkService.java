@@ -326,58 +326,131 @@ public class ParkService {
 
     }
 
-    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
-        String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
-        String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
-        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
-        FavoriteResponse favoriteresponse = new FavoriteResponse("");
-        try  {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
-            PreparedStatement getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
+//    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+//        String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
+//        String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
+//        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
+//        FavoriteResponse favoriteresponse = new FavoriteResponse("");
+//        try  {
+//            Connection connection = dataSource.getConnection();
+//            PreparedStatement checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
+//            PreparedStatement getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
+//
+//            // Check if park is already favorited
+//            checkFavoriteStmt.setString(1, userName);
+//            checkFavoriteStmt.setString(2, parkCode);
+//            ResultSet rs = checkFavoriteStmt.executeQuery();
+//            if (rs.next() && rs.getInt(1) > 0) {
+//                favoriteresponse.setMessage("Park already in the favorite list");
+//                return favoriteresponse;
+////                return new FavoriteResponse("Park already in the favorite list");
+//            }
+//
+//            // Get the maximum order
+//            getMaxOrderStmt.setString(1, userName);
+//            rs = getMaxOrderStmt.executeQuery();
+//            int maxOrder = 0;
+//            if (rs.next()) {
+//                maxOrder = rs.getInt(1);
+//            }
+//
+//            // Insert new favorite with next highest order
+//            try (PreparedStatement insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql)) {
+//                insertFavoriteStmt.setString(1, userName);
+//                insertFavoriteStmt.setString(2, parkCode);
+//                insertFavoriteStmt.setString(3, parkName);
+//                insertFavoriteStmt.setBoolean(4, isPrivate);
+//                insertFavoriteStmt.setInt(5, maxOrder + 1);
+//                insertFavoriteStmt.executeUpdate();
+//            }
+//            favoriteresponse.setMessage("Park successfully added to favorite list");
+////            return new FavoriteResponse("Park successfully added to favorite list");
+//        }
+//        catch (SQLTimeoutException sqlte) {
+//            sqlte.printStackTrace();
+//            favoriteresponse.setMessage("Error when adding favorite park: " + sqlte.getMessage());
+////            return new FavoriteResponse("Error when adding favorite park: " + sqlte.getMessage());
+//        }
+//        catch (SQLException sqle) {
+//            sqle.printStackTrace();
+//            favoriteresponse.setMessage("Error when adding favorite park: " + sqle.getMessage());
+////            return new FavoriteResponse("Error when adding favorite park: " + sqle.getMessage());
+//        }
+//        return favoriteresponse;
+//    }
+public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+    String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
+    String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
+    String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
+    FavoriteResponse favoriteresponse = new FavoriteResponse("");
 
-            // Check if park is already favorited
-            checkFavoriteStmt.setString(1, userName);
-            checkFavoriteStmt.setString(2, parkCode);
-            ResultSet rs = checkFavoriteStmt.executeQuery();
-            if (rs.next() && rs.getInt(1) > 0) {
-                favoriteresponse.setMessage("Park already in the favorite list");
-                return favoriteresponse;
-//                return new FavoriteResponse("Park already in the favorite list");
-            }
+    Connection connection = null;
+    PreparedStatement checkFavoriteStmt = null;
+    PreparedStatement getMaxOrderStmt = null;
+    PreparedStatement insertFavoriteStmt = null;
+    ResultSet rs = null;
 
-            // Get the maximum order
-            getMaxOrderStmt.setString(1, userName);
-            rs = getMaxOrderStmt.executeQuery();
-            int maxOrder = 0;
-            if (rs.next()) {
-                maxOrder = rs.getInt(1);
-            }
+    try {
+        connection = dataSource.getConnection();
+        checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
 
-            // Insert new favorite with next highest order
-            try (PreparedStatement insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql)) {
-                insertFavoriteStmt.setString(1, userName);
-                insertFavoriteStmt.setString(2, parkCode);
-                insertFavoriteStmt.setString(3, parkName);
-                insertFavoriteStmt.setBoolean(4, isPrivate);
-                insertFavoriteStmt.setInt(5, maxOrder + 1);
-                insertFavoriteStmt.executeUpdate();
-            }
-            favoriteresponse.setMessage("Park successfully added to favorite list");
-//            return new FavoriteResponse("Park successfully added to favorite list");
+        // Check if park is already favorited
+        checkFavoriteStmt.setString(1, userName);
+        checkFavoriteStmt.setString(2, parkCode);
+        rs = checkFavoriteStmt.executeQuery();
+        if (rs.next() && rs.getInt(1) > 0) {
+            favoriteresponse.setMessage("Park already in the favorite list");
+            return favoriteresponse;
         }
-        catch (SQLTimeoutException sqlte) {
-            sqlte.printStackTrace();
-            favoriteresponse.setMessage("Error when adding favorite park: " + sqlte.getMessage());
-//            return new FavoriteResponse("Error when adding favorite park: " + sqlte.getMessage());
+//        rs.close(); // Close ResultSet after use
+
+        // Get the maximum order
+        getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
+        getMaxOrderStmt.setString(1, userName);
+        rs = getMaxOrderStmt.executeQuery();
+        int maxOrder = 0;
+        if (rs.next()) {
+            maxOrder = rs.getInt(1);
         }
-        catch (SQLException sqle) {
-            sqle.printStackTrace();
-            favoriteresponse.setMessage("Error when adding favorite park: " + sqle.getMessage());
-//            return new FavoriteResponse("Error when adding favorite park: " + sqle.getMessage());
+//        rs.close(); // Close ResultSet after use
+
+        // Insert new favorite with next highest order
+        insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql);
+        insertFavoriteStmt.setString(1, userName);
+        insertFavoriteStmt.setString(2, parkCode);
+        insertFavoriteStmt.setString(3, parkName);
+        insertFavoriteStmt.setBoolean(4, isPrivate);
+        insertFavoriteStmt.setInt(5, maxOrder + 1);
+        insertFavoriteStmt.executeUpdate();
+        favoriteresponse.setMessage("Park successfully added to favorite list");
+
+    } catch (SQLTimeoutException sqlte) {
+        sqlte.printStackTrace();
+        favoriteresponse.setMessage("Error when adding favorite park: " + sqlte.getMessage());
+    } catch (SQLException sqle) {
+        sqle.printStackTrace();
+        favoriteresponse.setMessage("Error when adding favorite park: " + sqle.getMessage());
+    } finally {
+        // Close resources in finally block
+        if (rs != null) {
+            try { rs.close(); } catch (SQLException e) { /* log or handle exception */ }
         }
-        return favoriteresponse;
+        if (checkFavoriteStmt != null) {
+            try { checkFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+        }
+        if (getMaxOrderStmt != null) {
+            try { getMaxOrderStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+        }
+        if (insertFavoriteStmt != null) {
+            try { insertFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+        }
+        if (connection != null) {
+            try { connection.close(); } catch (SQLException e) { /* log or handle exception */ }
+        }
     }
+    return favoriteresponse;
+}
+
 
     public List<String> getFavoriteParkCodes(String userName) {
         String getUserFavoriteSql = "SELECT parkCode FROM favorites WHERE username = ? ";
