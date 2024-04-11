@@ -1,4 +1,4 @@
-Feature: Compatability with Chrome browser and mobile devices.
+Feature: Compatability with Chrome and mobile devices.
   Scenario: Accessing the application on the Chrome browser
     Given I have a device with the latest version of Chrome
     When I navigate to the web application URL
