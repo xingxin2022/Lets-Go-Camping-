@@ -97,7 +97,7 @@ function SignUpCard() {
                 <button type="submit">Sign Up</button>
 
                 {responseMessage && (
-                    <div className={styles.responseMessage} style={{ color: isErrorMessage ? 'red' : 'green' }}>
+                    <div id="response" className={styles.responseMessage} style={{ color: isErrorMessage ? 'red' : 'green' }}>
                         <br></br>
                         {responseMessage}
                     </div>

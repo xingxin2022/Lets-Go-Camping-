@@ -22,7 +22,3 @@ Feature: Update and review a favorite park list
     When I click on a park in the list
     Then I should be taken to the park details page
     And the park details should be displayed
-
-
-
-

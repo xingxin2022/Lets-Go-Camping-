@@ -1,8 +1,8 @@
-Feature: Suggest Park for a Group of Friends
+Feature: Suggest Park to Group of Friends
   Scenario: Suggest with a friend who has a private favorite list
     Given I have a friend who has a private favorite list
     When I click the "Suggest a Park" button
-    Then I should see the message "Your friends has a private list."
+    Then I should see the message "Some of your friends has a private list."
   Scenario: Suggest with a friend who has a public favorite list
     Given I have a friend who has a public favorite list
     When I click the "Suggest a Park" button
