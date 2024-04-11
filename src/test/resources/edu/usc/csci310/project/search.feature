@@ -50,13 +50,12 @@ Feature: Search for a park to visit based on various attributes
     When I click the "load more results" button
     Then I should see 10 more parks listed in the search results
 
-Scenario: Add to favorites button is functional
+  Scenario: Add to favorites button is functional
     Given I am on the search results page
     When I click the "add to favorites" button on a park
     Then I should see the message "Park added to favorites"
     And the park should be added to my favorites list
-=======
-Feature: Search for a park to visit 
+
   Scenario: Search by location
     Given the user is logged into the camping trip planner application
     When the user navigates to the 'Search Parks' section
@@ -89,7 +88,7 @@ Feature: Search for a park to visit
     And selects 'Wheelchair Accessible' from the accessibility features
     Then the system should display all parks with accessibility options
 
-Scenario: Park is already in favorites
+  Scenario: Park is already in favorites
     Given I am on the search results page
     When I click the "add to favorites" button on a park
     And the park is already in my favorites list
