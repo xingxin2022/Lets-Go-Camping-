@@ -19,12 +19,10 @@ beforeEach(() => {
 
 
 test('Search by Park Name Button', async () => {
-    const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
     let formattedQuery="yellowstone_national_park";
 
-    console.log(key);
 
-    let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=${key}`;
+    let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe`;
     fetch.mockResponseOnce(JSON.stringify({
         data: [{
             id: "1",
@@ -56,10 +54,9 @@ test('Search by Park Name Button', async () => {
 // });
 
 test('Search by Activity Function', async() => {
-    const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
     let formattedQuery="hiking";
 
-    let search_url = `https://developer.nps.gov/api/v1/activities/parks?limit=50&q=${formattedQuery}&api_key=${key}`;
+    let search_url = `https://developer.nps.gov/api/v1/activities/parks?limit=50&q=${formattedQuery}&api_key=zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe`;
     fetch.mockResponseOnce(JSON.stringify({ data: [{id: [1, 2, 3, 4], name: "Hiking", parks: [{parkCode: "acad"}] }] })).mockResponseOnce(JSON.stringify({data: [{id: "", fullName: "", images: [""], addresses: [], activities: [{name: 'hiking'}], description: "", url: ""}] })); // mocking fetch park codes
     //fetch.mockResponseOnce(JSON.stringify([{id: "", fullName: "", images: [""], addresses: [], activities: ['hiking'], description: "", url: ""}]));
     const user = userEvent.setup();
@@ -130,10 +127,9 @@ test('Show 10 more results', async() => {
 });
 
 test("fetching insufficient data", async () => {
-  const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
       let formattedQuery="yellowstone_national_park";
 
-      let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=${key}`;
+      let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe`;
       fetch.mockResponseOnce(JSON.stringify({
           data: [{
               id: "1",
