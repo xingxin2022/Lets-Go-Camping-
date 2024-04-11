@@ -7,6 +7,7 @@ import ParkList from "../../components/ParkList/ParkList";
 //import "bootstrap/dist/css/bootstrap.min.css";
 
 
+
 const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
 const initialParks = [
   {

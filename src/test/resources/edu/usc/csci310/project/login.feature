@@ -1,10 +1,10 @@
-Feature: Login page with create account and login functionality.
+Feature: Login page with create account and login.
   Scenario: password not matching requirements
     Given I am on the create account page
     When I enter "Password" into the password field
     And I enter "username" into the username field
     And I enter "Password" into the confirm password field
-    Then I should see an error message "Password must contain at least one digit"
+    Then I should see a message "Password must contain at least one digit"
 
   Scenario: two passwords do not match
     Given I am on the create account page
@@ -42,19 +42,20 @@ Feature: Login page with create account and login functionality.
     When I click the cancel button
     Then I should see a confirmation dialog
     And I click the confirm button
-    Then I should be on the home page
+    And I should be on the home page
 
   Scenario: cancel the cancel action when creating account
     Given I am on the login page
     When I click the cancel button
     Then I should see a confirmation dialog
     And I click the cancel button
-    Then I should still be on the create account page
+    And I should still be on the create account page
 
   Scenario: successful login
     Given I am on the login page
-    And I have an account with the username "username" and password "Password1"
+    And I have an account with username "username" and password "Password1"
     When I enter "username" into the username field
     And I enter "Password1" into the password field
     And I click the login button
     Then I should see the message "Login Successful"
+    
