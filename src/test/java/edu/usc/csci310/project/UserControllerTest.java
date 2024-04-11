@@ -79,7 +79,7 @@ public class UserControllerTest {
         verify(userService, times(1)).loginUser(username, password);
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
         assertNotNull(session);
-        assertNotEquals(session.getAttribute("username"), username);
+        assertEquals(session.getAttribute("username"), username);
     }
 
     @Test
