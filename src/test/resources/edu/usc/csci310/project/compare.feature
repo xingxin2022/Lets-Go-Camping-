@@ -6,11 +6,17 @@ Feature: Compare favorite park list with friends
     When I compare my list with my friend's list
     Then I should see a list with "Yellowstone", "Yosemite", and "Grand Canyon"
 
+  Scenario: Comparing with a friend with public list
+    Given I have a list with "Yellowstone" and "Yosemite"
+    And my friend has a public list
+    When I compare my list with my friend's list
+    Then I should see a list with parks from both lists
+
   Scenario: Comparing with a friend with private list
     Given I have a list with "Yellowstone" and "Yosemite"
     And my friend has a private list
     When I compare my list with my friend's list
-    Then I should see the message "One or more of your friends has a private list"
+    Then I should see "One or more of your friends has a private list"
 
   Scenario: Comparing with nonexistent friend
     Given I have a list with "Yellowstone" and "Yosemite"
@@ -32,5 +38,6 @@ Feature: Compare favorite park list with friends
     And first friend has a list with "Yosemite" and "Grand Canyon"
     And second friend has a list with "Yellowstone" and "Yosemite"
     When I compare my list with my friend's list
-    Then the list should be ordered with "Yosemite" first, "Yellowstone" second, and "Grand Canyon" third
-
+    Then the list should be ordered with "Yosemite" first
+    And the list should be order with "Yellowstone" second
+    And the list should be ordered with "Grand Canyon" third

@@ -7,6 +7,7 @@ function Header() {
 
     const navigate = useNavigate(); // Initialize useNavigate hook
 
+    const navigateToSuggest = () => navigate('/compare'); // Function to navigate to the search page
     const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
     const navigateToHome = () => navigate('/'); //
 
@@ -19,7 +20,7 @@ function Header() {
                 <ul className={styles.navList}>
                     <li className={styles.navItem} onClick={navigateToHome} data-testid="toHome">Home</li>
                     <li className={styles.navItem} onClick={navigateToSearch} data-testid="toSearch">Search</li>
-                    <li className={styles.navItem}>Suggest</li>
+                    <li className={styles.navItem} onClick={navigateToSuggest} data-testid="toSuggest">Suggest</li>
                     <li className={styles.navItem}>Contact</li>
                     <li className={styles.navItem}>Example</li>
                 </ul>
