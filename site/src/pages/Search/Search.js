@@ -5,7 +5,7 @@ import { useState } from "react";
 
 
 
-const stateCodes = {
+// const stateCodes = {
   Alabama: "AL",
   Alaska: "AK",
   Arizona: "AZ",
