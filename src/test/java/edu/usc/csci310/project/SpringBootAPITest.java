@@ -16,18 +16,15 @@ public class SpringBootAPITest {
     @Autowired
     private ApplicationContext context;
 
-    @Mock
-    private SpringBootAPI api;
 
     @Test
     void contextLoads() {
-        api.main(new String[]{});
+        SpringBootAPI.main(new String[]{});
         assertThat(context).isNotNull();
     }
 
     @Test
     void redirect() {
-        api = new SpringBootAPI();
-        assertThat(api.redirect()).isEqualTo("forward:/");
+        assertThat(new SpringBootAPI().redirect()).isEqualTo("forward:/");
     }
 }

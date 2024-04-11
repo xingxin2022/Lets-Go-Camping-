@@ -54,6 +54,20 @@ public class UserServiceTest {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(0);
+
+        User user = new User("newUser", "Password1a");
+        RegisterResponse response = userService.registerUser(user, "Password1a");
+
+        assertEquals("User registered successfully", response.getMessage());
+    }
+
+    @Test
+    public void registerSuccess2() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
         User user = new User("newUser", "Password1a");
@@ -74,11 +88,15 @@ public class UserServiceTest {
         User userLowerCase = new User("newUser", "password1");
         User userUpperCase = new User("newUser", "PASSWORD1");
         User userNoDigit = new User("newUser", "Password");
+        User userEmpty = new User("newUser", "Passs1s");
+        User userEmpty2 = new User("newUser", "");
 
         // Directly test the method without mocking since it's a validation method
         assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userLowerCase.getPassword(), userLowerCase.getPassword()));
         assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userUpperCase.getPassword(), userUpperCase.getPassword()));
         assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userNoDigit.getPassword(), userNoDigit.getPassword()));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userEmpty.getPassword(), ""));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userEmpty2.getPassword(), userEmpty2.getPassword()));
     }
 
     @Test
@@ -125,4 +143,34 @@ public class UserServiceTest {
 
         verify(statement, times(1)).execute(anyString());
     }
+
+    @Test
+    public void registerUserSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        User user = new User("testUser", "Password123");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.registerUser(user, "Password123"));
+        assertTrue(exception.getMessage().contains("Error when registering user: Database error"));
+    }
+
+    @Test
+    public void loginUserSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.loginUser("testUser", "Password123"));
+        assertTrue(exception.getMessage().contains("Error when trying to login: Database error"));
+    }
+
+    @Test
+    public void initializeDatabaseSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        Statement statement = mock(Statement.class);
+        when(connection.createStatement()).thenThrow(new SQLException("Database initialization error"));
+
+        userService.initializeDatabase();
+    }
+
 }
