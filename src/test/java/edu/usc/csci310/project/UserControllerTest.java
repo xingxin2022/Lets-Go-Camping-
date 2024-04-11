@@ -1,4 +1,5 @@
 package edu.usc.csci310.project;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,10 +10,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
 
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -76,7 +79,7 @@ public class UserControllerTest {
         verify(userService, times(1)).loginUser(username, password);
         MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
         assertNotNull(session);
-        assertNotEquals(session.getAttribute("username"), username);
+        assertEquals(session.getAttribute("username"), username);
     }
 
     @Test
@@ -140,6 +143,31 @@ public class UserControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string(containsString("An unexpected error occurred: Unexpected error")));
+    }
+
+    @Test
+    public void noLoginUserTest() throws Exception {
+        // Arrange
+        String username = "user";
+        String password = "wrongpassword";
+        when(userService.loginUser(username, password))
+                .thenReturn(new LoginResponse("Login Failed"));
+
+        // Act
+        MvcResult result = mockMvc.perform(post("/api/users/login")
+                        .param("username", username)
+                        .param("password", password)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Login Failed")))
+                .andReturn();
+
+        // Assert
+        verify(userService, times(1)).loginUser(username, password);
+
+        // Verify session attribute is not set due to failed login
+        MockHttpSession session = (MockHttpSession) result.getRequest().getSession(false);
+        assertTrue(session == null || session.getAttribute("username") == null, "Session attribute 'username' should not be set on failed login"); // Assert that the session attribute "username" is not set
     }
 
     @Test

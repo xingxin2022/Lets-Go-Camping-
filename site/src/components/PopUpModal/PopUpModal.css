@@ -1,0 +1,6 @@
+.content img {
+  /* max-width: 100%;
+  height: auto; */
+  width: 500px; /* or any size */
+  height: auto;
+}
