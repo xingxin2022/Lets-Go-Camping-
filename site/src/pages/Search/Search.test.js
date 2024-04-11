@@ -21,7 +21,6 @@ beforeEach(() => {
 test('Search by Park Name Button', async () => {
     let formattedQuery="yellowstone_national_park";
 
-    console.log(key);
 
     let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe`;
     fetch.mockResponseOnce(JSON.stringify({
