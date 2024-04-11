@@ -60,7 +60,8 @@ const stateCodes = {
 
 function Search() {
   const [parks, setParks] = useState([]);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  //const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(0);
   const [searchType, setSearchType] = useState("");
