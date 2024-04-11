@@ -43,6 +43,7 @@ public class UserController {
             if ("Login Successful".equals(response.getMessage())) {
                 session.setAttribute("username", username);
             }
+
             return ResponseEntity.ok(response);
         } catch (LoginFailedException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -59,7 +60,8 @@ public class UserController {
     public ResponseEntity<String> getCurrentUser(HttpSession session) {
         String user = (String) session.getAttribute("username");
         return user != null ? ResponseEntity.ok(user) :
-                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+
     }
 
     @PostMapping("/logout")
@@ -68,3 +70,4 @@ public class UserController {
         return ResponseEntity.ok("Logged out successfully");
     }
 }
+
