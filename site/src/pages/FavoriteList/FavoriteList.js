@@ -191,7 +191,6 @@ function FavoriteList() {
     function openVisibilityModal() {
         setIsVisibilityModalOpen(true);
     }
-
     function updateVisibility(newVisibility) {
         if (newVisibility) {
             setVisibility(newVisibility);

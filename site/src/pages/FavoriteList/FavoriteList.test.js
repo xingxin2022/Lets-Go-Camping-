@@ -92,15 +92,3 @@ test('Can delete', () => {
 
 });
 
-// describe('FavoriteList displays fallback texts', () => {
-//     test('displays "Address not available" when address is missing from a park', () => {
-//         // This step assumes you can manipulate initialParks for the test
-//         // For example, by making initialParks a prop of FavoriteList for testing purposes
-//         const modifiedInitialParks = [{ /* a park object without addresses */ }];
-//
-//         render(<FavoriteList initialParks={modifiedInitialParks} />); // Adjust based on actual implementation
-//
-//         expect(screen.getByText('Address not available')).toBeInTheDocument();
-//         // Add checks for other fallback texts similarly
-//     });
-// });
