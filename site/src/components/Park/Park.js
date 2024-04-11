@@ -28,6 +28,8 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                     body: JSON.stringify({
                         userName: currentUser,
                         parkCode: park.parkCode,
+                        parkName: park.fullName,
+                        isPrivate: true,
                     }),
                 })
                     .then((response) => response.json())

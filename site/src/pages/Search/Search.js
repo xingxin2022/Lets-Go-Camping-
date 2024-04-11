@@ -109,7 +109,6 @@ const initialParks = [
 
 function Search() {
   const [parks, setParks] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [start, setStart] = useState(0);

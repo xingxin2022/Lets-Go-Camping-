@@ -85,6 +85,8 @@ test('Park component adds to favorites on button click', async () => {
     body: JSON.stringify({
       userName: 'testUser',
       parkCode: parkMock.parkCode,
+      parkName: parkMock.fullName,
+      isPrivate: true,
     }),
   }));
 
@@ -130,6 +132,8 @@ test('Already favorited when adds to favorites on button click', async () => {
     body: JSON.stringify({
       userName: 'testUser',
       parkCode: parkMock.parkCode,
+      parkName: parkMock.fullName,
+      isPrivate: true,
     }),
   }));
 
