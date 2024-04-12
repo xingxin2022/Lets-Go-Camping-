@@ -91,4 +91,3 @@ test('Can delete', () => {
     expect(screen.queryByText("Acadia National Park")).not.toBeInTheDocument();
 
 });
-

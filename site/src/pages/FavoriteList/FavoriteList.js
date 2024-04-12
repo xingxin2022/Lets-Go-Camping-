@@ -187,7 +187,6 @@ function FavoriteList() {
         handleDeleteAll();
         closeModal();
     }
-
     function openVisibilityModal() {
         setIsVisibilityModalOpen(true);
     }
