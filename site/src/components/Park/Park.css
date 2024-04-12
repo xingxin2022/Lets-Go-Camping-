@@ -1,0 +1,21 @@
+.park-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.park-container .park-name{
+  cursor: pointer;
+}
+
+.confirmation-message {
+  color: green;
+  font-size: 14px; /* Adjust size as necessary */
+  margin-top: 10px;
+}

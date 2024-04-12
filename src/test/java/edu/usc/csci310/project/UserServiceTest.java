@@ -1,15 +1,19 @@
 package edu.usc.csci310.project;
 
+import edu.usc.csci310.project.exceptions.InvalidPasswordException;
+import edu.usc.csci310.project.exceptions.LoginFailedException;
+import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,22 +35,36 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void registerUserAlreadyExists() throws SQLException {
+    public void registerUserAlreadyExists() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        // Simulate existing user
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt(1)).thenReturn(1);
 
         User user = new User("testUser", "Password123");
 
-        RegisterResponse response = userService.registerUser(user, "Password123");
-
-        assertEquals("Username already exists", response.getMessage());
+        // This should throw an exception due to user existence simulation
+        assertThrows(UserAlreadyExistsException.class, () -> userService.registerUser(user, "Password123"));
     }
 
     @Test
-    public void registerUserSuccess() throws SQLException {
+    public void registerUserSuccess() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getInt(1)).thenReturn(0);
+
+        User user = new User("newUser", "Password1a");
+        RegisterResponse response = userService.registerUser(user, "Password1a");
+
+        assertEquals("User registered successfully", response.getMessage());
+    }
+
+    @Test
+    public void registerSuccess2() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -54,89 +72,35 @@ public class UserServiceTest {
 
         User user = new User("newUser", "Password1a");
         RegisterResponse response = userService.registerUser(user, "Password1a");
+
         assertEquals("User registered successfully", response.getMessage());
     }
 
     @Test
-    public void registerUserSuccess2() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.getInt(1)).thenReturn(0);
-        when(resultSet.next()).thenReturn(true);
-
+    public void registerPasswordMismatch() {
         User user = new User("newUser", "Password1a");
-        RegisterResponse response = userService.registerUser(user, "Password1a");
-        assertEquals("User registered successfully", response.getMessage());
-    }
-
-    @Test
-    public void registerPasswordMismatch() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        User user = new User("newUser", "Password1a");
-        RegisterResponse response = userService.registerUser(user, "Password2b");
-
-        assertEquals("Passwords do not match", response.getMessage());
-    }
-
-    @Test
-    public void registerInvalidPassword() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-
-        User user = new User("newUser", "password1");
-        RegisterResponse response = userService.registerUser(user, "password1");
-        assertEquals("Password must contain at least one uppercase letter", response.getMessage());
-
-        user = new User("newUser", "PASSWORD1");
-        response = userService.registerUser(user, "PASSWORD1");
-        assertEquals("Password must contain at least one lowercase letter", response.getMessage());
-
-        user = new User("newUser", "Password");
-        response = userService.registerUser(user, "Password");
-        assertEquals("Password must contain at least one digit", response.getMessage());
-
-    }
-
-    @Test
-    public void registerUserSQLException() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(dataSource.getConnection()).thenThrow(new SQLException("Database connection error"));
-
-        User user = new User("newUser", "Password1a");
-        RegisterResponse response = userService.registerUser(user, "Password1a");
-
-        assertEquals("Error when registering user: Database connection error", response.getMessage());
-    }
-
-    @Test
-    public void registerUserSQLException2() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(dataSource.getConnection()).thenThrow(new SQLTimeoutException("Database connection error"));
-
-        User user = new User("newUser", "Password1a");
-        RegisterResponse response = userService.registerUser(user, "Password1a");
-
-        assertEquals("Error when registering user: Database connection error", response.getMessage());
-    }
-
-    @Test
-    public void registerUserSQLException3() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("SQL Error"));
-
-        User user = new User("newUser", "Password1a");
-        RegisterResponse response = userService.registerUser(user, "Password1a");
-
-        assertEquals("Error when registering user: SQL Error", response.getMessage());
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(user.getPassword(), "Password2b"));
     }
 
 
     @Test
-    public void loginUserSuccess() throws SQLException {
+    public void registerInvalidPassword() {
+        User userLowerCase = new User("newUser", "password1");
+        User userUpperCase = new User("newUser", "PASSWORD1");
+        User userNoDigit = new User("newUser", "Password");
+        User userEmpty = new User("newUser", "Passs1s");
+        User userEmpty2 = new User("newUser", "");
+
+        // Directly test the method without mocking since it's a validation method
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userLowerCase.getPassword(), userLowerCase.getPassword()));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userUpperCase.getPassword(), userUpperCase.getPassword()));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userNoDigit.getPassword(), userNoDigit.getPassword()));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userEmpty.getPassword(), ""));
+        assertThrows(InvalidPasswordException.class, () -> userService.validatePassword(userEmpty2.getPassword(), userEmpty2.getPassword()));
+    }
+
+    @Test
+    public void loginUserSuccess() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
@@ -149,65 +113,28 @@ public class UserServiceTest {
     }
 
     @Test
-    public void loginUserFailure() throws SQLException {
+    public void loginUserFailure() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("password")).thenReturn("Password123");
 
-        LoginResponse response = userService.loginUser("testUser", "WrongPassword");
-
-        assertEquals("Password is incorrect", response.getMessage());
+        assertThrows(LoginFailedException.class, () -> userService.loginUser("testUser", "WrongPassword"));
     }
 
     @Test
-    public void loginUserUsernameDoesNotExist() throws SQLException {
+    public void loginUserUsernameDoesNotExist() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
-        LoginResponse response = userService.loginUser("nonExistentUser", "Password123");
-
-        assertEquals("Username does not exist", response.getMessage());
+        assertThrows(LoginFailedException.class, () -> userService.loginUser("nonExistentUser", "Password123"));
     }
 
     @Test
-    public void loginUserSQLException() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(dataSource.getConnection()).thenThrow(new SQLException("Database connection error"));
-
-        LoginResponse response = userService.loginUser("testUser", "Password123");
-
-        assertEquals("Error when trying to login: Database connection error", response.getMessage());
-    }
-
-    @Test
-    public void loginUserSQLException2() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenThrow(new SQLException("SQL Error"));
-
-        LoginResponse response = userService.loginUser("testUser", "Password123");
-
-        assertEquals("Error when trying to login: SQL Error", response.getMessage());
-    }
-
-    @Test
-    public void loginUserSQLException3() throws SQLException {
-        when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
-        when(preparedStatement.executeQuery()).thenReturn(resultSet);
-        when(resultSet.next()).thenThrow(new SQLException("SQL Error"));
-
-        LoginResponse response = userService.loginUser("testUser", "Password123");
-
-        assertEquals("Error when trying to login: SQL Error", response.getMessage());
-    }
-
-    @Test
-    public void initializeDatabase() throws SQLException {
+    public void initializeDatabase() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         Statement statement = mock(Statement.class);
         when(connection.createStatement()).thenReturn(statement);
@@ -218,14 +145,31 @@ public class UserServiceTest {
     }
 
     @Test
-    public void initializeDatabaseSQLException() throws SQLException {
+    public void registerUserSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        User user = new User("testUser", "Password123");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.registerUser(user, "Password123"));
+        assertTrue(exception.getMessage().contains("Error when registering user: Database error"));
+    }
+
+    @Test
+    public void loginUserSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.loginUser("testUser", "Password123"));
+        assertTrue(exception.getMessage().contains("Error when trying to login: Database error"));
+    }
+
+    @Test
+    public void initializeDatabaseSQLException() throws Exception {
         when(dataSource.getConnection()).thenReturn(connection);
         Statement statement = mock(Statement.class);
-        when(connection.createStatement()).thenReturn(statement);
-        doThrow(new SQLException("Error executing SQL")).when(statement).execute(anyString());
+        when(connection.createStatement()).thenThrow(new SQLException("Database initialization error"));
 
         userService.initializeDatabase();
     }
-
-
 }

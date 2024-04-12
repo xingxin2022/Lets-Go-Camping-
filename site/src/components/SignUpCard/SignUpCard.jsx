@@ -1,27 +1,26 @@
 import React, {useState} from "react";
+import {useNavigate} from "react-router-dom";
 import styles from "../styles/Card.module.css"
 
 function SignUpCard() {
-
-    // State hooks for form inputs and response message
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [responseMessage, setResponseMessage] = useState('');
+    const [isErrorMessage, setIsErrorMessage] = useState(false); // New state to track if the message is an error
+    const navigate = useNavigate();
 
-    // Handle form submission
     const handleSubmit = async (event) => {
-        event.preventDefault(); // Prevent default form submission behavior
+        event.preventDefault();
+        // Reset states
+        setResponseMessage('');
+        setIsErrorMessage(false);
 
-        // Perform validation if necessary (e.g., check if passwords match)
-
-        // Construct the form data
         const formData = new URLSearchParams();
         formData.append('username', username);
         formData.append('password', password);
         formData.append('confirmPassword', confirmPassword);
 
-        // Make the POST request to the /register endpoint
         try {
             const response = await fetch('/api/users/register', {
                 method: 'POST',
@@ -31,23 +30,34 @@ function SignUpCard() {
                 body: formData.toString(),
             });
 
-            const data = await response.json();
-            // Set the response message to display on the page
-            console.log(data);
-            console.log(data.message);
-            alert(data.message);
-            setResponseMessage(data.message);
+            if (!response.ok) {
+                let message = 'An unknown error occurred.';
+                const contentType = response.headers.get('Content-Type');
 
-            // Clear the form inputs
-            setUsername('');
-            setPassword('');
-            setConfirmPassword('');
+                if (contentType && contentType.includes('application/json')) {
+                    // If the content type is JSON, parse it as JSON
+                    const data = await response.json();
+                    message = data.message;
+                } else {
+                    // Otherwise, fallback to reading it as text
+                    message = await response.text();
+                }
+
+                setResponseMessage(message);
+                setIsErrorMessage(true);
+            } else {
+                // If the response is OK, then parse and process the JSON data
+                const data = await response.json();
+                setResponseMessage(data.message);
+                setIsErrorMessage(false);
+            }
+
         } catch (error) {
-            console.error('Error during the registration process:', error);
-            setResponseMessage('An error occurred. Please try again.');
+            //console.error('Error during the registration process:', error);
+            setResponseMessage('Failed to send request. Please try again later.');
+            setIsErrorMessage(true);
         }
     };
-
     return (
         <div className={styles.card} data-testid="signUpCard">
             <h2>Sign Up</h2>
@@ -85,7 +95,24 @@ function SignUpCard() {
                     </div>
                 </div>
                 <button type="submit">Sign Up</button>
+
+                {responseMessage && (
+                    <div id="response" className={styles.responseMessage} style={{ color: isErrorMessage ? 'red' : 'green' }}>
+                        <br></br>
+                        {responseMessage}
+                    </div>
+                )}
+
             </form>
+
+            <br></br>
+
+            <div>
+            Have an account already?
+                <span onClick={() => navigate('/')}
+                      style={{color: '#BF754B', cursor: 'pointer'}}> Back to Log-in</span>
+            </div>
+
         </div>
     );
 }

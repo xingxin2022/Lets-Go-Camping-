@@ -1,0 +1,49 @@
+[
+  {
+    "userEmail": "uliznji@mit.edu",
+    "favoritePark": [
+      "Great Smoky Mountains",
+      "Test Park",
+      "Zion",
+      "Yosemite"
+    ],
+    "privateList": false
+  },
+  {
+    "userEmail": "aouivas@usc.edu",
+    "favoritePark": [
+      "Test Park"
+    ],
+    "privateList": false
+  },
+  {
+    "userEmail": "sahkgrl@gmail.com",
+    "favoritePark": [
+      "Test Park",
+      "Grand Canyon",
+      "Zion",
+      "Great Smoky Mountains",
+      "Yellow Stone"
+    ],
+    "privateList": true
+  },
+  {
+    "userEmail": "hkgxuni@yahoo.com",
+    "favoritePark": [
+      "Yellow Stone",
+      "Test Park",
+      "Sequoia"
+    ],
+    "privateList": false
+  },
+  {
+    "userEmail": "nrqjgmv@usc.edu",
+    "favoritePark": [
+      "Zion",
+      "Yellow Stone",
+      "Test Park",
+      "Sequoia"
+    ],
+    "privateList": true
+  }
+]

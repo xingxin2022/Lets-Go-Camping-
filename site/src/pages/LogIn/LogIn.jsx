@@ -3,7 +3,6 @@ import React, {/* useState */} from "react";
 
 import Header from "../../components/Header/Header";
 import BannerImage from"../../components/BannerImage/BannerImage";
-import SignUpCard from "../../components/SignUpCard/SignUpCard";
 import LogInCard from "../../components/LogInCard/LogInCard";
 import Footer from "../../components/Footer/Footer";
 
@@ -15,7 +14,6 @@ function LogIn() {
             <Header />
             <BannerImage />
             <div className={styles.cardsContainer}>
-                <SignUpCard />
                 <LogInCard />
             </div>
             <Footer />
