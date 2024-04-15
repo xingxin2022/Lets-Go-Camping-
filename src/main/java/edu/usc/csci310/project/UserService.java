@@ -51,10 +51,12 @@ public class UserService {
     }
 
     public void validatePassword(String password, String confirmPassword) throws InvalidPasswordException {
+        if (password.isEmpty() || confirmPassword.isEmpty()) {
+            throw new InvalidPasswordException("Please fill out both password fields");
+        }
         if (!password.equals(confirmPassword)) {
             throw new InvalidPasswordException("Passwords do not match");
         }
-
         // Check for password requirements
         if (!password.matches(".*[A-Z].*")) {
             throw new InvalidPasswordException("Password must contain at least one uppercase letter");

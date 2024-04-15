@@ -3,7 +3,7 @@ package edu.usc.csci310.project;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
-
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,10 +35,15 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestParam String username,
+    public ResponseEntity<?> loginUser(HttpSession session,
+                                       @RequestParam String username,
                                        @RequestParam String password) {
         try {
             LoginResponse response = userService.loginUser(username, password);
+            if ("Login Successful".equals(response.getMessage())) {
+                session.setAttribute("username", username);
+            }
+
             return ResponseEntity.ok(response);
         } catch (LoginFailedException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
@@ -50,4 +55,19 @@ public class UserController {
     public ResponseEntity<String> handleException(Exception ex) {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @GetMapping("/current-user")
+    public ResponseEntity<String> getCurrentUser(HttpSession session) {
+        String user = (String) session.getAttribute("username");
+        return user != null ? ResponseEntity.ok(user) :
+        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logoutUser(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok("Logged out successfully");
+    }
 }
+
