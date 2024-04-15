@@ -333,6 +333,42 @@ test('handles fetch request failure gracefully', async () => {
     expect(screen.getByText('Failed to send request. Please try again later.')).toHaveStyle(`color: red`);
 });
 
+test("clicking Cancel triggers confirmation dialog", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    expect(screen.getByText(/Confirm Cancel/i)).toBeInTheDocument();
+    expect(screen.getByText(/Keep Signing Up/i)).toBeInTheDocument();
+});
+
+test("confirming cancel navigates away", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    const confirmCancelButton = screen.getByRole('button', { name: /Confirm Cancel/i });
+    fireEvent.click(confirmCancelButton);
+
+    await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+});
+
+test("denying cancel keeps the user on the sign-up form", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    const keepSigningUpButton = screen.getByRole('button', { name: /Keep Signing Up/i });
+    fireEvent.click(keepSigningUpButton);
+
+    await waitFor(() => {
+        expect(screen.getByTestId('signup-username')).toBeInTheDocument();
+    });
+});
+
+
 //--------------------------
 
 // Add your afterEach and other boilerplate setup/teardown code here
