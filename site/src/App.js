@@ -5,6 +5,7 @@ import LogIn from "./pages/LogIn/LogIn";
 import SignUp from "./pages/SignUp/SignUp";
 import Search from "./pages/Search/Search"
 import CompareList from "./pages/CompareList/CompareList";
+import FavoriteList from "./pages/FavoriteList/FavoriteList";
 
 
 
@@ -17,6 +18,7 @@ function App(){
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/compare" element={<CompareList />} />
+                <Route path="/favorite" element={<FavoriteList />} />
 
             </Routes>
         </div>
