@@ -62,7 +62,9 @@ test('Park component adds to favorites on button click', async () => {
       userFavorites={userFavoritesMock}
     />
   );
-
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
+  fireEvent.mouseLeave(screen.getByText(parkMock.fullName));
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
   fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
@@ -111,7 +113,7 @@ test('Already favorited when adds to favorites on button click', async () => {
       userFavorites={userFavoritesMock}
     />
   );
-
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
   fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
@@ -152,7 +154,7 @@ test('handles fetch failure', async () => {
           userFavorites={userFavoritesMock}
         />
       );
-
+      fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
       fireEvent.click(screen.getByRole('button', { name: '+' }));
         const consoleSpy = jest.spyOn(console, 'error');
         await waitFor(() => {

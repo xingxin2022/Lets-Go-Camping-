@@ -1,9 +1,9 @@
 import "./PopUpModal.css";
-import React from "react";
+import React, { useState } from "react";
 import Modal from 'react-modal';
 
-function PopUpModal({ modalIsOpen, closeModal, park, handleClick}) {
-
+function PopUpModal({ currentUser, modalIsOpen, closeModal, park, handleClick, setUserFavorites, userFavorites}) {
+    const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
     return (
      <Modal
         isOpen={modalIsOpen}
@@ -16,7 +16,7 @@ function PopUpModal({ modalIsOpen, closeModal, park, handleClick}) {
         <img src={park.images && park.images[0] ? park.images[0].url : ""}
              alt={ park.images && park.images[0] ? park.images[0].altText : "Park image"}/>
 
-        <p>Address: {park.addresses && park.addresses[0]
+        <p data-testid="handleClick-states" data-type="states" data-query={park.addresses?.[0]?.stateCode} onClick={handleClick}>Address: {park.addresses && park.addresses[0]
                                          ? park.addresses[0].line1 + ', '+ park.addresses[0].city + ', '+park.addresses[0].stateCode+', ' + park.addresses[0].countryCode
                                          : "Address not available"}</p>
         <p>Website: {park.url ? <a href={park.url} target="_blank" rel="noopener noreferrer">{park.url}</a> : "URL not available"} </p>
@@ -54,6 +54,43 @@ function PopUpModal({ modalIsOpen, closeModal, park, handleClick}) {
             </span>
           )) : "Activities not applicable"}
         </div>
+          <button
+            onClick={() => {
+                fetch("/api/search/add-favorite", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        userName: currentUser,
+                        parkCode: park.parkCode,
+                        parkName: park.fullName,
+                        isPrivate: true,
+                    }),
+                })
+                    .then((response) => response.json())
+                    .then((response) => {
+                        if (response?.message === "Park successfully added to favorite list") {
+                            setUserFavorites([...userFavorites, park.parkCode])
+                        }
+                        return response;
+                    })
+                    .then((response) => {
+                        if (response?.message === "Park successfully added to favorite list") {
+                            setFavoriteConfirmation('Park successfully added to favorite list');
+                            setTimeout(() => setFavoriteConfirmation(''), 3000);
+                        }
+                        if (response?.message === "Park already in the favorite list") {
+                            setFavoriteConfirmation('Park already in the favorite list');
+                            setTimeout(() => setFavoriteConfirmation(''), 3000);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }}
+          >
+             +
+          </button>
+          {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
         </div>
       </Modal>
     );

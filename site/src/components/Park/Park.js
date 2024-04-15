@@ -3,8 +3,9 @@ import './Park.css';
 
 function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorites , testId}) {
   const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
+  const [showAddToFavorites, setShowAddToFavorites] = useState(false);
   return (
-    <div data-testid={testId} className="park-container">
+    <div data-testid={testId} className="park-container" onMouseEnter={() => setShowAddToFavorites(true)} onMouseLeave={() => setShowAddToFavorites(false)}>
           <h3 className="park-name" onClick = {()=>onSetShowPark(park)}>
           {park.fullName}  {park.isFavorite ? " 🌟️ " : ""}
           </h3>
@@ -18,7 +19,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                                   ? park.addresses[0].line1 + ', '+ park.addresses[0].city + ', '+park.addresses[0].stateCode+', ' + park.addresses[0].countryCode
                                   : "Address not available"}</p>
 
-          <button
+          {showAddToFavorites && (<button
             onClick={() => {
                 fetch("/api/search/add-favorite", {
                     method: "POST",
@@ -54,6 +55,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
           >
              +
           </button>
+          )}
           {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
           </div>
   );

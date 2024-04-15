@@ -2,7 +2,9 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+import { UserProvider, useUser } from '../../UserContext';
 import { act } from "react-dom/test-utils"; // Import act
+import * as UserContextModule from '../../UserContext';
 
 import App from "../../App";
 import LogIn from "./LogIn";
@@ -17,6 +19,15 @@ jest.mock('react-router-dom', () => ({
     useNavigate: () => mockNavigate,
 }));
 
+jest.mock('../../UserContext', () => ({
+  UserProvider: ({ children }) => <div>{children}</div>,
+  useUser: () => ({
+    currentUser: 'mockedUser',
+    setCurrentUser: jest.fn(),
+    fetchCurrentUser: jest.fn(),
+  }),
+}));
+
 
 beforeEach(() => {
     fetch.mockClear();
@@ -27,9 +38,11 @@ beforeEach(() => {
 
 test("Make sure App is rendered", () => {
     render(
-        <BrowserRouter>
-            <App />
-        </BrowserRouter>
+        <UserProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </UserProvider>
     );
 
     expect(screen.getByRole('button', { name: /Log In/i })).toBeInTheDocument();
@@ -41,7 +54,14 @@ test('handles successful login and navigation', async () => {
         json: async () => ({ message: "Login successful" }),
     });
 
-    render(<LogIn />, { wrapper: BrowserRouter });
+//    render(<LogIn />, { wrapper: BrowserRouter });
+     render(
+            <UserProvider>
+                <BrowserRouter>
+                    <LogIn />
+                </BrowserRouter>
+            </UserProvider>
+        );
     const usernameInput = screen.getByLabelText(/Name/i);
     const passwordInput = screen.getByLabelText(/Password/i);
 
@@ -55,6 +75,7 @@ test('handles successful login and navigation', async () => {
         expect(fetch).toHaveBeenCalledTimes(1);
         expect(mockNavigate).toHaveBeenCalledWith('/search');
     });
+
 });
 
 test('displays error message on login failure', async () => {
@@ -63,7 +84,14 @@ test('displays error message on login failure', async () => {
         json: async () => ({ message: "An error occurred. Please try again." }),
     });
 
-    render(<LogIn />, { wrapper: BrowserRouter });
+//    render(<LogIn />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <LogIn />
+                </BrowserRouter>
+            </UserProvider>
+        );
     const usernameInput = screen.getByLabelText(/Name/i);
     const passwordInput = screen.getByLabelText(/Password/i);
 
@@ -81,7 +109,14 @@ test('displays error message on login failure', async () => {
 test('displays error message on fetch error', async () => {
     fetch.mockRejectedValue(new Error('Network error'));
 
-    render(<LogIn />, { wrapper: BrowserRouter });
+//    render(<LogIn />, { wrapper: BrowserRouter });
+    render(
+        <UserProvider>
+            <BrowserRouter>
+                <LogIn />
+            </BrowserRouter>
+        </UserProvider>
+    );
     const usernameInput = screen.getByLabelText(/Name/i);
     const passwordInput = screen.getByLabelText(/Password/i);
 
