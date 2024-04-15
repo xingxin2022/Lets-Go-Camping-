@@ -7,6 +7,7 @@ import Search from "./pages/Search/Search"
 import CompareList from "./pages/CompareList/CompareList";
 
 
+
 function App(){
     return (
         <div>
@@ -16,6 +17,7 @@ function App(){
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/compare" element={<CompareList />} />
+
             </Routes>
         </div>
     )
