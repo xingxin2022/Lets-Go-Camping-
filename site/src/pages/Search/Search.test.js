@@ -411,6 +411,25 @@ test("navigate to compare", async () => {
     expect(mockNavigate).toHaveBeenCalledWith('/compare');
 });
 
+test("navigate to favorite", async () => {
+
+    render(
+             <UserProvider>
+                 <BrowserRouter>
+                   <Search />
+                 </BrowserRouter>
+               </UserProvider>
+         );
+
+    const favoriteLink = screen.getByText(/FavoriteList/i);
+
+    await act(async () => {
+        await userEvent.click(favoriteLink);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith('/favorite');
+});
+
 test("navigate to logout", async () => {
 
     render(

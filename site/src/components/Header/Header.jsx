@@ -11,7 +11,7 @@ function Header() {
 
     const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
     const navigateToHome = () => navigate('/'); //
-//     const navigateToFavorite = () => navigate('/favorite');
+    const navigateToFavorite = () => navigate('/favorite');
     const navigateToCompare = () => navigate('/compare');
 
     const handleLogout = () => {
@@ -35,7 +35,7 @@ function Header() {
                 <ul className={styles.navList}>
                     <li className={styles.navItem} onClick={navigateToHome} data-testid="toHome">Home</li>
                     {currentUser && <li className={styles.navItem} onClick={navigateToSearch} data-testid="toSearch">Search</li>}
-{/*                     <li className={styles.navItem} onClick={navigateToFavorite} data-testid="toSuggest">FavoriteList</li> */}
+                    {currentUser && <li className={styles.navItem} onClick={navigateToFavorite} data-testid="toSuggest">FavoriteList</li>}
                     {currentUser && <li className={styles.navItem} onClick={navigateToCompare} data-testid="toSuggest">CompareList</li>}
                     {currentUser && <li className={styles.navItem} onClick={handleLogout}>LogOut</li>}
                 </ul>

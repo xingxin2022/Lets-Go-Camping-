@@ -1,5 +1,6 @@
 import "./Search.css";
 import Header from "../../components/Header/Header.jsx";
+import Footer from "../../components/Footer/Footer";
 import { useState, useEffect } from "react";
 import PopUpModal from '../../components/PopUpModal/PopUpModal';
 import ParkList from "../../components/ParkList/ParkList";
@@ -323,6 +324,7 @@ function Search() {
                   Show 10 more results
               </button>
           )}
+          <Footer/>
       </div>
   );
 }
