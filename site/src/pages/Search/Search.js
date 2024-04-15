@@ -3,6 +3,7 @@ import Header from "../../components/Header/Header.jsx";
 import { useState, useEffect } from "react";
 import PopUpModal from '../../components/PopUpModal/PopUpModal';
 import ParkList from "../../components/ParkList/ParkList";
+import { useUser } from '../../UserContext';
 //import Button from "react-bootstrap/Button";
 //import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -116,7 +117,9 @@ function Search() {
   const [searchType, setSearchType] = useState("parkname");
   const [allParkCodes, setAllParkCodes] = useState([]);
   const [currentParkIndex, setCurrentParkIndex] = useState(0);
-  const [currentUser, setCurrentUser] = useState(null);
+
+//  const [currentUser, setCurrentUser] = useState(null);
+  const { currentUser, setCurrentUser } = useUser();
   const [userFavorites, setUserFavorites] = useState([]);
   const [modalIsOpen, setIsOpen] = useState(false);
   const [modalPark, setModalPark] = useState([]);
@@ -174,30 +177,30 @@ function Search() {
   }
 
 
-  useEffect(() => {
-      fetch('/api/users/current-user', {
-          method: 'GET',
-          credentials: 'include'
-      })
-      .then(response => {
-          if(response.ok) {
-              return response.text();
-          } else {
-              throw new Error('Not logged in');
-          }
-      })
-      .then(username => {
-          setCurrentUser(username);
-      })
-      .catch(error => {
-          console.error('Error:', error);
-          setCurrentUser(null);
-      });
-  }, []);
+//  useEffect(() => {
+//      fetch('/api/users/current-user', {
+//          method: 'GET',
+//          credentials: 'include'
+//      })
+//      .then(response => {
+//          if(response.ok) {
+//              return response.text();
+//          } else {
+//              throw new Error('Not logged in');
+//          }
+//      })
+//      .then(username => {
+//          setCurrentUser(username);
+//      })
+//      .catch(error => {
+//          console.error('Error:', error);
+//          setCurrentUser(null);
+//      });
+//  }, []);
 
   useEffect(() => {
       const fetchUserFavorites = async () => {
-         if (currentUser){
+//         if (currentUser){
              try{
                 const response = await fetch(`/api/search/get-user-favorites?username=${currentUser}`, {
                      method: 'GET',
@@ -212,7 +215,7 @@ function Search() {
              } catch (error) {
                 console.error('Failed to fetch user favorites', error);
              }
-         }
+//         }
       };
       fetchUserFavorites();
   }, [currentUser]);
@@ -307,7 +310,7 @@ function Search() {
               handleShowPark} currentUser={currentUser} setUserFavorites={setUserFavorites} userFavorites={userFavorites}/>
           </div>
           {modalIsOpen && modalPark && (
-              <PopUpModal modalIsOpen={modalIsOpen} closeModal={closeModal} park={modalPark} handleClick={handleClick}  />
+              <PopUpModal currentUser={currentUser} modalIsOpen={modalIsOpen} closeModal={closeModal} park={modalPark} handleClick={handleClick} setUserFavorites={setUserFavorites} userFavorites={userFavorites} />
           )}
 
           {parks && parks.length > 0 && (

@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/Card.module.css"
+import { useUser } from '../../UserContext';
 
 function LogInCard() {
     // State hooks for username and password
@@ -9,6 +10,7 @@ function LogInCard() {
     const [loginMessage, setLoginMessage] = useState('');
     const [loginError, setLoginError] = useState('');
     const navigate = useNavigate();
+    const { fetchCurrentUser } = useUser();
 
     // Handle form submission
     const handleSubmit = async (event) => {
@@ -50,6 +52,7 @@ function LogInCard() {
             // Assuming a successful response is always in JSON format
             const data = await response.json();
             setLoginMessage(data.message); // Handle success
+            fetchCurrentUser();
             navigate('/search');
 
         } catch (error) {

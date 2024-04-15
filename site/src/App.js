@@ -2,9 +2,10 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import LogIn from "./pages/LogIn/LogIn";
-import Search from "./pages/Search/Search"
 import SignUp from "./pages/SignUp/SignUp";
+import Search from "./pages/Search/Search"
 import CompareList from "./pages/CompareList/CompareList";
+
 
 function App(){
     return (
@@ -20,5 +21,4 @@ function App(){
     )
 
 }
-
 export default App;

@@ -5,6 +5,7 @@ import CompareList from "./CompareList";
 import FriendList from '../../components/FriendList/FriendList';
 import {act} from "react-dom/test-utils";
 import userEvent from "@testing-library/user-event";
+import { UserProvider, useUser } from '../../UserContext';
 
 
 // Mock the navigation functionality (useNavigate)
@@ -12,6 +13,14 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
     ...jest.requireActual('react-router-dom'),
     useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../UserContext', () => ({
+  useUser: () => ({
+    currentUser: 'mockedUser',
+    setCurrentUser: jest.fn(),
+    fetchCurrentUser: jest.fn()
+  }),
 }));
 
 // Mock the dummy user data
@@ -103,18 +112,19 @@ test('deselecting a user removes them from the comparison', () => {
     expect(screen.getByTestId('message-display')).toHaveTextContent('Favorite parks:');
 });
 
-test("navigate to suggest", async () => {
+test("navigate to search", async () => {
 
     render(<CompareList />);
-    const suggestLink = screen.getByText(/suggest/i);
+    const searchLink = screen.getByText(/search/i);
 
     await act(async () => {
-        await userEvent.click(suggestLink);
+        await userEvent.click(searchLink);
     });
 
-    expect(mockNavigate).toHaveBeenCalledWith('/compare');
+    expect(mockNavigate).toHaveBeenCalledWith('/search');
 });
 
 afterEach(() => {
     jest.clearAllMocks();
 });
+
