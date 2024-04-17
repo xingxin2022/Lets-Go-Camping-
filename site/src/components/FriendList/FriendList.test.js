@@ -107,4 +107,5 @@ describe('FriendList Component', () => {
         expect(screen.getByText('Test Park:')).toBeInTheDocument();
         expect(screen.getByText('1.00')).toBeInTheDocument(); // Example ratio based on parks
     });
+
 });

@@ -105,7 +105,6 @@
     cursor: pointer;
     display: inline-block;
 }
-
 .tooltip {
     visibility: hidden;
     width: 200px;

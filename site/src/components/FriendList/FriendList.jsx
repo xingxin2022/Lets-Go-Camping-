@@ -106,8 +106,6 @@ function FriendList() {
             </div>
         </div>
     );
-
-
 }
 
 export default FriendList;
