@@ -3,11 +3,19 @@ package edu.usc.csci310.project;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
+import edu.usc.csci310.project.search.Park;
+
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,6 +58,17 @@ public class UserController {
         }
 
     }
+
+    @PostMapping("/compare")
+    public ResponseEntity<?> compareUser(@RequestParam List<String> usernames) {
+
+        List<Map.Entry<Park, Double>> sortedParks = userService.getFavoriteParksSortedByPopularity(usernames);
+        List<ParkPopularity> results = sortedParks.stream()
+                .map(entry -> new ParkPopularity(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(results);
+    }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {

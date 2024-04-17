@@ -3,6 +3,7 @@ package edu.usc.csci310.project;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
+import edu.usc.csci310.project.search.Park;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,6 +14,9 @@ import static org.mockito.Mockito.*;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -172,4 +176,86 @@ public class UserServiceTest {
 
         userService.initializeDatabase();
     }
+
+    @Test
+    public void getFavoriteParksByUsername_ReturnsParks_WhenResultsFound() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true).thenReturn(false);
+        when(resultSet.getString("parkCode")).thenReturn("YOSEM");
+        when(resultSet.getString("parkName")).thenReturn("Yosemite");
+
+        List<Park> parks = userService.getFavoriteParksByUsername("user1");
+
+        assertEquals(1, parks.size());
+        assertEquals("YOSEM", parks.get(0).getParkCode());
+        assertEquals("Yosemite", parks.get(0).getFullName());
+    }
+
+    @Test
+    public void getFavoriteParksByUsername_ReturnsEmptyList_WhenNoResultsFound() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        List<Park> parks = userService.getFavoriteParksByUsername("user1");
+
+        assertTrue(parks.isEmpty());
+    }
+
+    @Test
+    public void getFavoriteParksByUsername_ThrowsException_OnSQLException() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        // If you want to test RuntimeException, your method should be re-throwing SQLException as RuntimeException
+        Exception exception = assertThrows(RuntimeException.class, () -> userService.getFavoriteParksByUsername("user1"));
+        assertTrue(exception.getCause() instanceof SQLException);
+    }
+
+    @Test
+    public void getFavoriteParksSortedByPopularity_ReturnsSortedParks_WhenUsernamesValid() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true, true, false);
+        // Assume that the results should be in the following order
+        when(resultSet.getString("parkCode")).thenReturn("ZION").thenReturn("YOSEM");
+        when(resultSet.getString("parkName")).thenReturn("Zion").thenReturn("Yosemite");
+
+        List<String> usernames = Arrays.asList("user1", "user2");
+        List<Map.Entry<Park, Double>> sortedParks = userService.getFavoriteParksSortedByPopularity(usernames);
+
+        // Verify the order is as expected
+        assertEquals("Zion", sortedParks.get(0).getKey().getFullName());
+        assertEquals("Yosemite", sortedParks.get(1).getKey().getFullName());
+    }
+
+    @Test
+    public void getFavoriteParksSortedByPopularity_ReturnsEmptyList_WhenNoFavorites() throws Exception {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        List<String> usernames = Arrays.asList("user1", "user2");
+        List<Map.Entry<Park, Double>> sortedParks = userService.getFavoriteParksSortedByPopularity(usernames);
+
+        assertTrue(sortedParks.isEmpty());
+    }
+
+    @Test
+    public void getFavoriteParksSortedByPopularity_ThrowsException_OnSQLException() throws Exception {
+        // Instead of mocking userService (which is the class under test), mock the behavior within the method if needed
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenThrow(new SQLException("Database error"));
+
+        // Now, if the SQLException is expected to be caught and a RuntimeException thrown...
+        List<String> usernames = Arrays.asList("user1", "user2");
+        assertThrows(RuntimeException.class, () -> userService.getFavoriteParksSortedByPopularity(usernames));
+    }
+
+
 }

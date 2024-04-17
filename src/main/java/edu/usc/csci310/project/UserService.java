@@ -4,12 +4,15 @@ import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 
+import edu.usc.csci310.project.search.Park;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -106,4 +109,45 @@ public class UserService {
         }
     }
 
+    // Dummy implementation of a method to get favorite parks by username
+    public List<Park> getFavoriteParksByUsername(String username) {
+        List<Park> favoriteParks = new ArrayList<>();
+        String sql = "SELECT parkCode, parkName FROM favorites WHERE username = ?";
+        try {
+            Connection connection = dataSource.getConnection();
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String parkCode = rs.getString("parkCode");
+                String parkName = rs.getString("parkName");
+                Park parkToAdd = new Park();
+                parkToAdd.setParkCode(parkCode);
+                parkToAdd.setFullName(parkName);
+                favoriteParks.add(parkToAdd);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error accessing database", e);
+        }
+        return favoriteParks;
+    }
+    public List<Map.Entry<Park, Double>> getFavoriteParksSortedByPopularity(List<String> usernames) {
+        Map<Park, Integer> parkCount = new HashMap<>();
+        try {
+            for (String username : usernames) {
+                List<Park> favorites = getFavoriteParksByUsername(username);
+                for (Park park : favorites) {
+                    parkCount.merge(park, 1, Integer::sum);
+                }
+            }
+        } catch (RuntimeException e) {
+            throw e;
+        }
+
+        final int totalUsers = usernames.size();
+        return parkCount.entrySet().stream()
+                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), (entry.getValue() * 100.0) / totalUsers))
+                .sorted(Map.Entry.<Park, Double>comparingByValue().reversed())
+                .collect(Collectors.toList());
+    }
 }
