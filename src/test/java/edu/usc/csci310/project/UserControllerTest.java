@@ -1,6 +1,10 @@
 package edu.usc.csci310.project;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.*;
 
+import static org.hamcrest.Matchers.is;
+
+import edu.usc.csci310.project.search.Park;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -27,6 +31,9 @@ import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)
@@ -194,5 +201,65 @@ public class UserControllerTest {
                 .andExpect(content().string(containsString("Logged out successfully")));
     }
 
+
+    @Test
+    public void compareUser_ShouldReturnBadRequest_WhenUsernamesListIsEmpty() throws Exception {
+        mockMvc.perform(post("/api/users/compare")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[]"))  // Sending an empty array as the request body
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("An unexpected error occurred: Required request parameter 'usernames' for method parameter type List is not present"));
+
+        verify(userService, never()).getFavoriteParksSortedByPopularity(any());
+    }
+
+    @Test
+    public void compareUser_ShouldReturnSortedParks_WhenUsernamesListIsValid() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2");
+        List<Map.Entry<Park, Double>> sortedParks = createMockParkEntries();
+        when(userService.getFavoriteParksSortedByPopularity(usernames)).thenReturn(sortedParks);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/compare")
+                        .param("usernames", "user1", "user2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].fullName", is("Yosemite")))
+                .andExpect(jsonPath("$[0].popularity", is(95.0)))
+                .andExpect(jsonPath("$[1].fullName", is("Yellowstone")))
+                .andExpect(jsonPath("$[1].popularity", is(90.0)));
+
+        verify(userService, times(1)).getFavoriteParksSortedByPopularity(usernames);
+    }
+
+    @Test
+    public void compareUser_ShouldReturnInternalServerError_WhenExceptionOccurs() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2");
+        when(userService.getFavoriteParksSortedByPopularity(usernames))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/compare")
+                        .param("usernames", "user1", "user2")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError());
+
+        verify(userService, times(1)).getFavoriteParksSortedByPopularity(usernames);
+    }
+
+    // Helper method to create mock park entries
+    private List<Map.Entry<Park, Double>> createMockParkEntries() {
+        Park park1 = new Park();
+        park1.setFullName("Yosemite");
+        Park park2 = new Park();
+        park2.setFullName("Yellowstone");
+        return Arrays.asList(
+                new AbstractMap.SimpleEntry<>(park1, 95.0),
+                new AbstractMap.SimpleEntry<>(park2, 90.0)
+        );
+    }
 }
 
