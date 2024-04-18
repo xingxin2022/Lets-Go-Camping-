@@ -230,7 +230,7 @@ function Search() {
   }, [parks, userFavorites]);
 
   return (
-      <div>
+      <div className="page-container">
           <Header/>
 
           <br></br>

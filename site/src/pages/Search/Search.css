@@ -173,6 +173,10 @@ button:hover {
     width: 60%;
 }
 
+.page-container{
+    position: relative;
+    min-height: 100vh;
+}
 
 
 
