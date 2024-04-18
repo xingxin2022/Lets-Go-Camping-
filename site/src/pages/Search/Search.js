@@ -315,7 +315,7 @@ function Search() {
           )}
 
           {parks && parks.length > 0 && (
-              <button
+              <button className="show-more-button"
                   onClick={() => {
                       const newStart = start + 10;
                       performSearch(searchType, query, newStart);
