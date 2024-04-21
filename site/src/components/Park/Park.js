@@ -30,7 +30,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                         userName: currentUser,
                         parkCode: park.parkCode,
                         parkName: park.fullName,
-                        isPrivate: true,
+                        isPublic: false,
                     }),
                 })
                     .then((response) => response.json())
