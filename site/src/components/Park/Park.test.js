@@ -88,7 +88,7 @@ test('Park component adds to favorites on button click', async () => {
       userName: 'testUser',
       parkCode: parkMock.parkCode,
       parkName: parkMock.fullName,
-      isPrivate: true,
+      isPublic: false,
     }),
   }));
 
@@ -135,7 +135,7 @@ test('Already favorited when adds to favorites on button click', async () => {
       userName: 'testUser',
       parkCode: parkMock.parkCode,
       parkName: parkMock.fullName,
-      isPrivate: true,
+      isPublic: false,
     }),
   }));
 

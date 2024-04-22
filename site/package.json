@@ -10,7 +10,6 @@
     "@types/node": "^16.18.12",
     "@types/react-dom": "^18.0.11",
     "bootstrap": "^5.3.3",
-    "jest-fetch-mock": "^3.0.3",
     "react": "^18.2.0",
     "react-bootstrap": "^2.7.2",
     "react-dom": "^18.2.0",
@@ -38,7 +37,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react": "^18.2.55"
+    "@types/react": "^18.2.55",
+    "jest-fetch-mock": "^3.0.3"
   },
   "jest": {
     "collectCoverageFrom": [

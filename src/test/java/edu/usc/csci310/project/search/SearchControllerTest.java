@@ -79,7 +79,7 @@ class SearchControllerTest {
         favoriteRequest.setUserName("testUser");
         favoriteRequest.setParkCode("yellow");
         favoriteRequest.setParkName("yellow");
-        favoriteRequest.setPrivate(true);
+        favoriteRequest.setPublic(false);
 
         FavoriteResponse favoriteResponse = new FavoriteResponse("Park successfully added to favorite list");
 

@@ -173,7 +173,14 @@ button:hover {
     width: 60%;
 }
 
+.page-container{
+    position: relative;
+    min-height: 100vh;
+}
 
+.show-more-button{
+    margin-bottom: 100px;
+}
 
 
 

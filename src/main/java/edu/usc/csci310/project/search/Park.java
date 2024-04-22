@@ -118,7 +118,7 @@ public class Park {
         this.amenities = amenities;
     }
 
-    static class Activity {
+    public static class Activity {
         private String id;
         private String name;
 
@@ -139,7 +139,7 @@ public class Park {
         }
     }
 
-    static class Amenity {
+    public static class Amenity {
         private String id;
         private String name;
 
@@ -170,7 +170,7 @@ public class Park {
         }
     }
 
-    static class DetailedActivityPark{
+    public static class DetailedActivityPark{
         private String states;
         private String parkCode;
         private String designation;
@@ -227,7 +227,7 @@ public class Park {
         }
     }
 
-    static class Image {
+    public static class Image {
         private String credit;
         private String title;
         private String altText;
@@ -275,7 +275,7 @@ public class Park {
         }
     }
 
-    static class EntranceFee {
+    public static class EntranceFee {
         private String cost;
         private String description;
         private String title;
@@ -305,7 +305,7 @@ public class Park {
         }
     }
 
-    static class Address {
+    public static class Address {
         private String postalCode;
         private String city;
         private String stateCode;
