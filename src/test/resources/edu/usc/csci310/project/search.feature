@@ -109,3 +109,9 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search results page
     When I click on a park name
     Then I should be taken to the park details page
+
+  Scenario: Logout button is functional
+    Given I am on the search results page
+    When I click the logout button
+    Then I should be taken to the login page
+    And I should be logged out
