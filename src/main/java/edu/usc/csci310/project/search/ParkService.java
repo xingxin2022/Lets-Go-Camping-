@@ -378,10 +378,10 @@ public class ParkService {
 //        }
 //        return favoriteresponse;
 //    }
-public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPublic) {
     String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
     String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
-    String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
+    String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPublic, parkOrder) VALUES (?, ?, ?,?,?)";
     FavoriteResponse favoriteresponse = new FavoriteResponse("");
 
     Connection connection = null;
@@ -419,7 +419,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
         insertFavoriteStmt.setString(1, userName);
         insertFavoriteStmt.setString(2, parkCode);
         insertFavoriteStmt.setString(3, parkName);
-        insertFavoriteStmt.setBoolean(4, isPrivate);
+        insertFavoriteStmt.setBoolean(4, isPublic);
         insertFavoriteStmt.setInt(5, maxOrder + 1);
         insertFavoriteStmt.executeUpdate();
         favoriteresponse.setMessage("Park successfully added to favorite list");
@@ -482,7 +482,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
                 "username TEXT NOT NULL, " +
                 "parkCode TEXT NOT NULL, " +
                 "parkName TEXT NOT NULL, " +
-                "isPrivate BOOLEAN NOT NULL DEFAULT TRUE, " +
+                "isPublic BOOLEAN NOT NULL DEFAULT TRUE, " +
                 "parkOrder INTEGER, " +
                 "PRIMARY KEY (username, parkCode))";
 

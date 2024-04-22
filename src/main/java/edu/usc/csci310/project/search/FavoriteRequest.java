@@ -33,11 +33,11 @@ public class FavoriteRequest {
         this.parkName = parkName;
     }
 
-    public boolean isPrivate() {
+    public boolean isPublic() {
         return isPrivate;
     }
 
-    public void setPrivate(boolean aPrivate) {
+    public void setPublic(boolean aPrivate) {
         isPrivate = aPrivate;
     }
 }
