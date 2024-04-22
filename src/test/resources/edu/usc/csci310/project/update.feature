@@ -87,3 +87,9 @@ Feature: Update and review a favorite park list
     Given I am on the favorite park list page
     When I click the compare list button in the header
     Then I should be taken to the compare list page
+
+  Scenario: Logout button is functional
+    Given I am on the search results page
+    When I click the logout button
+    Then I should be taken to the login page
+    And I should be logged out
