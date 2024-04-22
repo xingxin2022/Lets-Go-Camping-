@@ -66,3 +66,9 @@ Feature: Compare favorite park list with friends
     Given I am on the compare list page
     When I click on the favorite list button in the header
     Then I should be on the favorite list page
+
+  Scenario: Logout button is functional
+    Given I am on the search results page
+    When I click the logout button
+    Then I should be taken to the login page
+    And I should be logged out
