@@ -41,3 +41,28 @@ Feature: Compare favorite park list with friends
     Then the list should be ordered with "Yosemite" first
     And the list should be order with "Yellowstone" second
     And the list should be ordered with "Grand Canyon" third
+
+  Scenario: hovering over ratio shows users who have that park in their list
+    Given I have a list with "Yellowstone" and "Yosemite"
+    And first friend has a list with "Yosemite" and "Grand Canyon"
+    And second friend has a list with "Yellowstone" and "Yosemite"
+    When I compare my list with my friend's list
+    And I hover over the "3/3" for "Yosemite"
+    Then I should see a list with my name, first friend's name, and second friend's name
+
+  Scenario: clicking on park name shows park details
+    Given I have a list with "Yellowstone" and "Yosemite"
+    And my friend has a list with "Yosemite" and "Grand Canyon"
+    When I compare my list with my friend's list
+    And I click on "Yosemite"
+    Then I should see the details for "Yosemite"
+
+  Scenario: navigate to search page
+    Given I am on the compare list page
+    When I click on the search button in the header
+    Then I should be on the search page
+
+  Scenario: navigate to favorite list page
+    Given I am on the compare list page
+    When I click on the favorite list button in the header
+    Then I should be on the favorite list page
