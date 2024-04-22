@@ -75,17 +75,43 @@ Feature: Search for a park to visit based on various attributes
     And click the search button
     Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
 
-  Scenario: Add to favorites button is functional
-    Given I am on the search results page
-    When I hover over the plus button next to a park
-    And click the "add to favorites" button
-    Then I should see the message "Park added to favorites"
-    And the park should be added to my favorites list
 
-  Scenario: Cancelling add to favorites
+  Scenario: hover over park shows plus button
     Given I am on the search results page
-    When I click the "add to favorites" button on a park
-    And click the "cancel" button
-    Then I should see the message "Add to favorites cancelled
+    When I hover over a park
+    Then I should see a plus button appear
+
+  Scenario: Adding to favorites
+    Given I am on the search results page
+    When I hover over a park
+    And click the plus button
+    Then I should see the park added to my favorites list
+
+  Scenario: Park is already in favorite list
+    Given I am on the search results page
+    When I hover over a park
+    And click the plus button
+    And the park is already in my favorites list
+    Then I should see the message "Park is already in favorites"
     And the park should not be added to my favorites list
 
+  Scenario: Navigate to compare list page
+    Given I am on the search page
+    When I click the compare list button on the header
+    Then I should be taken to the compare list page
+
+  Scenario: Navigate to favorites list page
+    Given I am on the search page
+    When I click the favorites list button on the header
+    Then I should be taken to the favorites list page
+
+  Scenario: Clicking on park name shows details
+    Given I am on the search results page
+    When I click on a park name
+    Then I should be taken to the park details page
+
+  Scenario: Logout button is functional
+    Given I am on the search results page
+    When I click the logout button
+    Then I should be taken to the login page
+    And I should be logged out
