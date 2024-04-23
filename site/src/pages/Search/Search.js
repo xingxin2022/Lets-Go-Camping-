@@ -201,22 +201,41 @@ function Search() {
 
   useEffect(() => {
       const fetchUserFavorites = async () => {
-//         if (currentUser){
-             try{
-                const response = await fetch(`/api/search/get-user-favorites?username=${currentUser}`, {
-                     method: 'GET',
-                     credentials: 'include',
-                     headers: {
-                         'Content-Type': 'application/json'
-                     },
-                });
-                const favorites = await response.json();
-                setUserFavorites(favorites );
+          try {
+              const response = await fetch(`/api/search/get-user-favorites?username=${currentUser}`, {
+                  method: 'GET',
+                  credentials: 'include',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+              });
 
-             } catch (error) {
-                console.error('Failed to fetch user favorites', error);
-             }
-//         }
+              if (!response.ok) {
+                  // Check if the HTTP response is not successful and throw an error with the status code
+                  throw new Error(`Network response was not ok, status: ${response.status}`);
+              }
+
+              const text = await response.text(); // Get the response as text to safely parse it later
+              console.log("Response text:", text); // Log the response text to see what's actually returned
+
+              if (!text) {
+                  console.log("No favorites found, or empty response from server.");
+                  setUserFavorites([]); // Assume no favorites exist, update state accordingly
+                  return; // Exit the function without an error
+              }
+
+              try {
+                  const favorites = JSON.parse(text); // Safely parse the JSON text
+                  setUserFavorites(favorites); // Update the state or perform an action with the favorites
+              } catch (parseError) {
+                  // Catch any errors that occur during JSON parsing
+                  throw new Error(`Failed to parse JSON: ${parseError.message} | Raw response: ${text}`);
+              }
+
+          } catch (error) {
+              // Catch any network errors or the errors thrown from the above blocks
+              console.error('Failed to fetch user favorites', error);
+          }
       };
       fetchUserFavorites();
   }, [currentUser]);

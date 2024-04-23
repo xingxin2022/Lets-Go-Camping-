@@ -224,15 +224,15 @@ public class ParkService {
                         List<String> newParkCodes = new ArrayList<>();
                         ParkActivityResponse parkActivitiesResponse = objectMapper.readValue(responseJson, ParkActivityResponse.class);
                         if (parkActivitiesResponse != null ) {
-                              List<ActivityPark> activityPark = parkActivitiesResponse.getData();
-                              for (ActivityPark park: activityPark){
-                                  for (ActivityPark.DetailedActivityPark detailPark :  park.getActivityParks()){
-                                      newParkCodes.add(detailPark.getParkCode());
-                                  }
-                              }
-                              parkCodes = newParkCodes;
-                              List<String> initialParkCodes = parkCodes.subList(0, Math.min(10, parkCodes.size()));
-                              parks = fetchParkDetailsBatch(startPosition, initialParkCodes);
+                            List<ActivityPark> activityPark = parkActivitiesResponse.getData();
+                            for (ActivityPark park: activityPark){
+                                for (ActivityPark.DetailedActivityPark detailPark :  park.getActivityParks()){
+                                    newParkCodes.add(detailPark.getParkCode());
+                                }
+                            }
+                            parkCodes = newParkCodes;
+                            List<String> initialParkCodes = parkCodes.subList(0, Math.min(10, parkCodes.size()));
+                            parks = fetchParkDetailsBatch(startPosition, initialParkCodes);
                         }
                     } else{
                         List<String> initialParkCodes = parkCodes.subList(startPosition,  Math.min(startPosition + 10, parkCodes.size()));
@@ -326,7 +326,7 @@ public class ParkService {
 
     }
 
-//    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+    //    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
 //        String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
 //        String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
 //        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
@@ -378,78 +378,78 @@ public class ParkService {
 //        }
 //        return favoriteresponse;
 //    }
-public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPublic) {
-    String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
-    String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
-    String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPublic, parkOrder) VALUES (?, ?, ?,?,?)";
-    FavoriteResponse favoriteresponse = new FavoriteResponse("");
+    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+        String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
+        String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
+        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
+        FavoriteResponse favoriteresponse = new FavoriteResponse("");
 
-    Connection connection = null;
-    PreparedStatement checkFavoriteStmt = null;
-    PreparedStatement getMaxOrderStmt = null;
-    PreparedStatement insertFavoriteStmt = null;
-    ResultSet rs = null;
+        Connection connection = null;
+        PreparedStatement checkFavoriteStmt = null;
+        PreparedStatement getMaxOrderStmt = null;
+        PreparedStatement insertFavoriteStmt = null;
+        ResultSet rs = null;
 
-    try {
-        connection = dataSource.getConnection();
-        checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
+        try {
+            connection = dataSource.getConnection();
+            checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
 
-        // Check if park is already favorited
-        checkFavoriteStmt.setString(1, userName);
-        checkFavoriteStmt.setString(2, parkCode);
-        rs = checkFavoriteStmt.executeQuery();
-        if (rs.next() && rs.getInt(1) > 0) {
-            favoriteresponse.setMessage("Park already in the favorite list");
-            return favoriteresponse;
-        }
+            // Check if park is already favorited
+            checkFavoriteStmt.setString(1, userName);
+            checkFavoriteStmt.setString(2, parkCode);
+            rs = checkFavoriteStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                favoriteresponse.setMessage("Park already in the favorite list");
+                return favoriteresponse;
+            }
 //        rs.close(); // Close ResultSet after use
 
-        // Get the maximum order
-        getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
-        getMaxOrderStmt.setString(1, userName);
-        rs = getMaxOrderStmt.executeQuery();
-        int maxOrder = 0;
-        if (rs.next()) {
-            maxOrder = rs.getInt(1);
-        }
+            // Get the maximum order
+            getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
+            getMaxOrderStmt.setString(1, userName);
+            rs = getMaxOrderStmt.executeQuery();
+            int maxOrder = 0;
+            if (rs.next()) {
+                maxOrder = rs.getInt(1);
+            }
 //        rs.close(); // Close ResultSet after use
 
-        // Insert new favorite with next highest order
-        insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql);
-        insertFavoriteStmt.setString(1, userName);
-        insertFavoriteStmt.setString(2, parkCode);
-        insertFavoriteStmt.setString(3, parkName);
-        insertFavoriteStmt.setBoolean(4, isPublic);
-        insertFavoriteStmt.setInt(5, maxOrder + 1);
-        insertFavoriteStmt.executeUpdate();
-        favoriteresponse.setMessage("Park successfully added to favorite list");
+            // Insert new favorite with next highest order
+            insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql);
+            insertFavoriteStmt.setString(1, userName);
+            insertFavoriteStmt.setString(2, parkCode);
+            insertFavoriteStmt.setString(3, parkName);
+            insertFavoriteStmt.setBoolean(4, isPrivate);
+            insertFavoriteStmt.setInt(5, maxOrder + 1);
+            insertFavoriteStmt.executeUpdate();
+            favoriteresponse.setMessage("Park successfully added to favorite list");
 
-    } catch (SQLTimeoutException sqlte) {
-        sqlte.printStackTrace();
-        favoriteresponse.setMessage("Error when adding favorite park: " + sqlte.getMessage());
-    } catch (SQLException sqle) {
-        sqle.printStackTrace();
-        favoriteresponse.setMessage("Error when adding favorite park: " + sqle.getMessage());
-    } finally {
-        // Close resources in finally block
-        if (rs != null) {
-            try { rs.close(); } catch (SQLException e) { /* log or handle exception */ }
+        } catch (SQLTimeoutException sqlte) {
+            sqlte.printStackTrace();
+            favoriteresponse.setMessage("Error when adding favorite park: " + sqlte.getMessage());
+        } catch (SQLException sqle) {
+            sqle.printStackTrace();
+            favoriteresponse.setMessage("Error when adding favorite park: " + sqle.getMessage());
+        } finally {
+            // Close resources in finally block
+            if (rs != null) {
+                try { rs.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
+            if (checkFavoriteStmt != null) {
+                try { checkFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
+            if (getMaxOrderStmt != null) {
+                try { getMaxOrderStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
+            if (insertFavoriteStmt != null) {
+                try { insertFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
+            if (connection != null) {
+                try { connection.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
         }
-        if (checkFavoriteStmt != null) {
-            try { checkFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
-        }
-        if (getMaxOrderStmt != null) {
-            try { getMaxOrderStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
-        }
-        if (insertFavoriteStmt != null) {
-            try { insertFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
-        }
-        if (connection != null) {
-            try { connection.close(); } catch (SQLException e) { /* log or handle exception */ }
-        }
+        return favoriteresponse;
     }
-    return favoriteresponse;
-}
 
 
     public List<String> getFavoriteParkCodes(String userName) {
@@ -458,7 +458,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement getUserFavoriteStmt = connection.prepareStatement(getUserFavoriteSql);
-             ) {
+        ) {
 
             // Check if user does not have favorite park
             getUserFavoriteStmt.setString(1, userName);
@@ -478,19 +478,41 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
 
     @PostConstruct
     public void initializeParkDatabase() {
-        String createFavoritesTableSql = "CREATE TABLE IF NOT EXISTS favorites (" +
+        // SQL statement to drop the table if it exists
+        String dropFavoritesTableSql = "DROP TABLE IF EXISTS favorites";
+
+        // SQL statement to create the table
+        String createFavoritesTableSql = "CREATE TABLE favorites (" +
                 "username TEXT NOT NULL, " +
                 "parkCode TEXT NOT NULL, " +
                 "parkName TEXT NOT NULL, " +
-                "isPublic BOOLEAN NOT NULL DEFAULT TRUE, " +
+                "isPrivate BOOLEAN NOT NULL DEFAULT TRUE, " +
                 "parkOrder INTEGER, " +
                 "PRIMARY KEY (username, parkCode))";
 
+        // SQL statements to insert initial data
+        String insertSampleDataSql =
+                "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES " +
+                        "('LesenmiaoYu', 'PARK1', 'TestPark01', FALSE, 1), " +
+                        "('EricLiu', 'PARK1', 'TestPark01', FALSE, 1), " +
+                        "('SabrinaYang', 'PARK1', 'TestPark01', FALSE, 1), " +
+                        "('LesenmiaoYu', 'PARK2', 'TestPark02', FALSE, 2), " +
+                        "('SylviaGuo', 'PARK2', 'TestPark02', TRUE, 1), " +
+                        "('EricLiu', 'PARK3', 'TestPark03', FALSE, 2), " +
+                        "('EricLiu', 'PARK5', 'TestPark05', FALSE, 3), " +
+                        "('SylviaGuo', 'PARK4', 'TestPark04', TRUE, 2), " +
+                        "('SabrinaYang', 'PARK5', 'TestPark05', FALSE, 2);";
+
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
+            // Drop the existing table
+            stmt.execute(dropFavoritesTableSql);
+            // Create a new table
             stmt.execute(createFavoritesTableSql);
+            // Insert sample data
+            stmt.execute(insertSampleDataSql);
         } catch (SQLException e) {
-            System.out.println("Error initializing database: " + e.getMessage());
+            System.out.println("Error initializing favorites database: " + e.getMessage());
         }
     }
 

@@ -3,19 +3,14 @@ package edu.usc.csci310.project;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
-import edu.usc.csci310.project.search.Park;
-
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,17 +54,6 @@ public class UserController {
 
     }
 
-    @PostMapping("/compare")
-    public ResponseEntity<?> compareUser(@RequestParam List<String> usernames) {
-
-        List<Map.Entry<Park, Double>> sortedParks = userService.getFavoriteParksSortedByPopularity(usernames);
-        List<ParkPopularity> results = sortedParks.stream()
-                .map(entry -> new ParkPopularity(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(results);
-    }
-
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,7 +63,7 @@ public class UserController {
     public ResponseEntity<String> getCurrentUser(HttpSession session) {
         String user = (String) session.getAttribute("username");
         return user != null ? ResponseEntity.ok(user) :
-        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 
     }
 
@@ -87,6 +71,28 @@ public class UserController {
     public ResponseEntity<?> logoutUser(HttpSession session) {
         session.invalidate();
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/get-users")
+    public List<String> getAllUsernames() {
+        return userService.getAllUsernames();
+    }
+
+    @GetMapping("/{username}/parks")
+    public List<ParkInfo> getUserFavoritePark(@PathVariable String username) {
+        return userService.getFavoriteParksByUsername(username);
+    }
+
+    @PostMapping("/favorite-parks/union")
+    public ResponseEntity<?> getUnionOfFavoriteParks(@RequestBody List<String> usernames) {
+        try {
+            List<ParkCount> parkCounts = userService.getUnionFavoriteParks(usernames);
+            return ResponseEntity.ok(parkCounts);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
 

@@ -1311,7 +1311,7 @@ void searchParks_JsonProcessingException() throws Exception{
 
         parkService.initializeParkDatabase();
 
-        verify(statement, times(1)).execute(anyString());
+        verify(statement, times(3)).execute(anyString());
     }
 
     @Test

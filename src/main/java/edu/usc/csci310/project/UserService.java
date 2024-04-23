@@ -1,34 +1,45 @@
 package edu.usc.csci310.project;
 
+
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 
-import edu.usc.csci310.project.search.Park;
+
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
 import java.util.stream.Collectors;
+
 
 @Service
 public class UserService {
     private final DataSource dataSource;
+
 
     @Autowired
     public UserService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
+
     public RegisterResponse registerUser(User user, String confirmPassword) throws UserAlreadyExistsException, InvalidPasswordException {
         String checkUserSql = "SELECT COUNT(*) FROM users WHERE username = ?";
         String insertUserSql = "INSERT INTO users (username, password) VALUES (?, ?)";
 
+
         try (Connection connection = dataSource.getConnection();
              PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
+
 
             checkUserStmt.setString(1, user.getUsername());
             ResultSet rs = checkUserStmt.executeQuery();
@@ -36,8 +47,10 @@ public class UserService {
                 throw new UserAlreadyExistsException("Username already exists");
             }
 
+
             // Validate password
             validatePassword(user.getPassword(), confirmPassword);
+
 
             // Insert user
             try (PreparedStatement insertUserStmt = connection.prepareStatement(insertUserSql)) {
@@ -52,6 +65,7 @@ public class UserService {
             throw new RuntimeException("Error when registering user: " + sqle.getMessage());
         }
     }
+
 
     public void validatePassword(String password, String confirmPassword) throws InvalidPasswordException {
         if (password.isEmpty() || confirmPassword.isEmpty()) {
@@ -72,8 +86,10 @@ public class UserService {
         }
     }
 
+
     public LoginResponse loginUser(String username, String password) throws LoginFailedException {
         String checkUserSql = "SELECT password FROM users WHERE username = ?";
+
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
@@ -96,58 +112,119 @@ public class UserService {
     }
     @PostConstruct
     public void initializeDatabase() {
-        String createTableSql = "CREATE TABLE IF NOT EXISTS users (" +
+        // SQL statement to drop the table if it exists
+        String dropUsersTableSql = "DROP TABLE IF EXISTS users";
+
+
+        // SQL statement to create the table
+        String createUsersTableSql = "CREATE TABLE users (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "username TEXT NOT NULL UNIQUE, " +
                 "password TEXT NOT NULL)";
 
+
+        // SQL statements to insert initial data FOR TESTING RIGHT NOW!
+        String[] insertUserSql = {
+                "INSERT INTO users (username, password) VALUES ('EricLiu', 'Eric1234!')",
+                "INSERT INTO users (username, password) VALUES ('SylviaGuo', 'Sylvia1234!')",
+                "INSERT INTO users (username, password) VALUES ('LesenmiaoYu', 'David1234!')",
+                "INSERT INTO users (username, password) VALUES ('SabrinaYang', 'Sabrina1234!')"
+        };
+
+
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
-            stmt.execute(createTableSql);
+            // Drop the existing table
+            stmt.execute(dropUsersTableSql);
+            // Create a new table
+            stmt.execute(createUsersTableSql);
+            // Iterate over the SQL statements to insert each user
+            for (String sql : insertUserSql) {
+                stmt.execute(sql);
+            }
         } catch (SQLException e) {
             System.out.println("Error initializing database: " + e.getMessage());
         }
     }
 
-    // Dummy implementation of a method to get favorite parks by username
-    public List<Park> getFavoriteParksByUsername(String username) {
-        List<Park> favoriteParks = new ArrayList<>();
-        String sql = "SELECT parkCode, parkName FROM favorites WHERE username = ?";
-        try {
-            Connection connection = dataSource.getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                String parkCode = rs.getString("parkCode");
-                String parkName = rs.getString("parkName");
-                Park parkToAdd = new Park();
-                parkToAdd.setParkCode(parkCode);
-                parkToAdd.setFullName(parkName);
-                favoriteParks.add(parkToAdd);
+
+    public List<String> getAllUsernames() {
+        List<String> usernames = new ArrayList<>();
+        String sql = "SELECT username FROM users";
+
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+
+            while (resultSet.next()) {
+                usernames.add(resultSet.getString("username"));
             }
+
+
         } catch (SQLException e) {
-            throw new RuntimeException("Error accessing database", e);
-        }
-        return favoriteParks;
-    }
-    public List<Map.Entry<Park, Double>> getFavoriteParksSortedByPopularity(List<String> usernames) {
-        Map<Park, Integer> parkCount = new HashMap<>();
-        try {
-            for (String username : usernames) {
-                List<Park> favorites = getFavoriteParksByUsername(username);
-                for (Park park : favorites) {
-                    parkCount.merge(park, 1, Integer::sum);
-                }
-            }
-        } catch (RuntimeException e) {
-            throw e;
+            throw new RuntimeException("Error retrieving all usernames", e);
         }
 
-        final int totalUsers = usernames.size();
-        return parkCount.entrySet().stream()
-                .map(entry -> new AbstractMap.SimpleEntry<>(entry.getKey(), (entry.getValue() * 100.0) / totalUsers))
-                .sorted(Map.Entry.<Park, Double>comparingByValue().reversed())
+
+        return usernames;
+    }
+
+
+    public List<ParkInfo> getFavoriteParksByUsername(String username) {
+        List<ParkInfo> favoriteParks = new ArrayList<>();
+        String sql = "SELECT parkName, parkCode, isPrivate FROM favorites WHERE username = ?";
+
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+
+            while (resultSet.next()) {
+                String parkName = resultSet.getString("parkName");
+                String parkCode = resultSet.getString("parkCode");
+                Boolean isPrivate = resultSet.getBoolean("isPrivate");
+                favoriteParks.add(new ParkInfo(parkName, parkCode, isPrivate));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error retrieving favorite parks", e);
+        }
+
+
+        return favoriteParks;
+    }
+
+
+    public List<ParkCount> getUnionFavoriteParks(List<String> usernames) throws Exception {
+        Map<String, ParkCount> parkCountMap = new HashMap<>();
+        if (usernames.size() < 2) {
+            throw new Exception("Need to select 2 or more users for comparison.");
+        }
+
+        for (String username : usernames) {
+            List<ParkInfo> favoriteParks = getFavoriteParksByUsername(username);
+            if (favoriteParks.stream().anyMatch(ParkInfo::getPrivate)) {
+                throw new Exception("Comparing failed: the user '" + username + "' has a private list.");
+            }
+
+            for (ParkInfo parkInfo : favoriteParks) {
+                String parkKey = parkInfo.getParkCode();
+                parkCountMap.computeIfAbsent(parkKey, k -> new ParkCount(parkInfo.getParkName(), parkInfo.getParkCode()))
+                        .incrementCount(username);
+            }
+        }
+
+        int totalUsers = usernames.size();
+        parkCountMap.values().forEach(parkCount -> parkCount.calculateRatio(totalUsers));
+
+        return parkCountMap.values().stream()
+                .sorted(Comparator.comparing(ParkCount::getRatio).reversed())
                 .collect(Collectors.toList());
     }
 }
+
