@@ -32,7 +32,7 @@ public class SearchController {
 
     @PostMapping("/add-favorite")
     public ResponseEntity<FavoriteResponse> addFavorite(@RequestBody FavoriteRequest request ) {
-        FavoriteResponse response = parkService.addFavorite(request.getUserName(), request.getParkCode(), request.getParkName(), request.isPrivate());
+        FavoriteResponse response = parkService.addFavorite(request.getUserName(), request.getParkCode(), request.getParkName(), request.isPublic());
         return ResponseEntity.ok(response);
     }
 

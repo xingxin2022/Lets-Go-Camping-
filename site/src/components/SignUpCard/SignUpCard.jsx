@@ -1,18 +1,18 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import styles from "../styles/Card.module.css"
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from '../styles/Card.module.css';
 
 function SignUpCard() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [responseMessage, setResponseMessage] = useState('');
-    const [isErrorMessage, setIsErrorMessage] = useState(false); // New state to track if the message is an error
+    const [isErrorMessage, setIsErrorMessage] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        // Reset states
         setResponseMessage('');
         setIsErrorMessage(false);
 
@@ -33,31 +33,33 @@ function SignUpCard() {
             if (!response.ok) {
                 let message = 'An unknown error occurred.';
                 const contentType = response.headers.get('Content-Type');
-
                 if (contentType && contentType.includes('application/json')) {
-                    // If the content type is JSON, parse it as JSON
                     const data = await response.json();
                     message = data.message;
                 } else {
-                    // Otherwise, fallback to reading it as text
                     message = await response.text();
                 }
-
                 setResponseMessage(message);
                 setIsErrorMessage(true);
             } else {
-                // If the response is OK, then parse and process the JSON data
                 const data = await response.json();
                 setResponseMessage(data.message);
                 setIsErrorMessage(false);
             }
-
         } catch (error) {
-            //console.error('Error during the registration process:', error);
             setResponseMessage('Failed to send request. Please try again later.');
             setIsErrorMessage(true);
         }
     };
+
+    const handleCancel = () => {
+        setShowCancelConfirm(true);
+    };
+
+    const confirmCancel = () => {
+        navigate('/');  // Adjust this as necessary to navigate to the correct route
+    };
+
     return (
         <div className={styles.card} data-testid="signUpCard">
             <h2>Sign Up</h2>
@@ -68,8 +70,8 @@ function SignUpCard() {
                         <input
                             type="text"
                             id="usernameRegis"
-                            value={username} // Binds input value to the username state
-                            onChange={(e) => setUsername(e.target.value)} // Updates username state on input change
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             data-testid="signup-username"
                         />
                     </div>
@@ -78,8 +80,8 @@ function SignUpCard() {
                         <input
                             type="password"
                             id="passwordRegis"
-                            value={password} // Binds input value to the password state
-                            onChange={(e) => setPassword(e.target.value)} // Updates password state on input change
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             data-testid="signup-password"
                         />
                     </div>
@@ -88,31 +90,41 @@ function SignUpCard() {
                         <input
                             type="password"
                             id="confirmPasswordRegis"
-                            value={confirmPassword} // Binds input value to the confirmPassword state
-                            onChange={(e) => setConfirmPassword(e.target.value)} // Updates confirmPassword state on input change
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             data-testid="signup-password-confirm"
                         />
                     </div>
                 </div>
                 <button type="submit">Sign Up</button>
+                <button type="button" onClick={handleCancel} className={styles.cancelButton}>Cancel</button>
+
+                <br></br>
+                <br></br>
+
+                {showCancelConfirm && (
+                    <>
+                        <button onClick={confirmCancel} className={styles.confirmButton}>Confirm Cancel</button>
+                        <button onClick={() => setShowCancelConfirm(false)} className={styles.denyButton}>Keep Signing
+                            Up
+                        </button>
+                    </>
+                )}
 
                 {responseMessage && (
-                    <div id="response" className={styles.responseMessage} style={{ color: isErrorMessage ? 'red' : 'green' }}>
-                        <br></br>
+                    <div id="response" className={styles.responseMessage}
+                         style={{color: isErrorMessage ? 'red' : 'green'}}>
                         {responseMessage}
                     </div>
                 )}
-
             </form>
 
-            <br></br>
+            <br />
 
             <div>
-            Have an account already?
-                <span onClick={() => navigate('/')}
-                      style={{color: '#BF754B', cursor: 'pointer'}}> Back to Log-in</span>
+                Have an account already?
+                <span onClick={() => navigate('/')} style={{ color: '#BF754B', cursor: 'pointer' }}> Back to Log-in</span>
             </div>
-
         </div>
     );
 }
