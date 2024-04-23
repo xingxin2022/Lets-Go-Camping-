@@ -101,7 +101,6 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search page
     When I click Logout button
     Then I should be directed to "Log In" page
-
   Scenario: Clicking search button given input exists
     Given I am on the search page
     When I enter "Yosemite" into search box
