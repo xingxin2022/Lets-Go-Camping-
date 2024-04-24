@@ -2,6 +2,7 @@ package edu.usc.csci310.project.search;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.usc.csci310.project.Hash;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -395,7 +396,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
         checkFavoriteStmt = connection.prepareStatement(checkFavoriteSql);
 
         // Check if park is already favorited
-        checkFavoriteStmt.setString(1, userName);
+        checkFavoriteStmt.setString(1, Hash.hash(userName));
         checkFavoriteStmt.setString(2, parkCode);
         rs = checkFavoriteStmt.executeQuery();
         if (rs.next() && rs.getInt(1) > 0) {
@@ -406,7 +407,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
 
         // Get the maximum order
         getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
-        getMaxOrderStmt.setString(1, userName);
+        getMaxOrderStmt.setString(1, Hash.hash(userName));
         rs = getMaxOrderStmt.executeQuery();
         int maxOrder = 0;
         if (rs.next()) {
@@ -416,7 +417,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
 
         // Insert new favorite with next highest order
         insertFavoriteStmt = connection.prepareStatement(insertFavoriteSql);
-        insertFavoriteStmt.setString(1, userName);
+        insertFavoriteStmt.setString(1, Hash.hash(userName));
         insertFavoriteStmt.setString(2, parkCode);
         insertFavoriteStmt.setString(3, parkName);
         insertFavoriteStmt.setBoolean(4, isPublic);
@@ -461,7 +462,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
              ) {
 
             // Check if user does not have favorite park
-            getUserFavoriteStmt.setString(1, userName);
+            getUserFavoriteStmt.setString(1, Hash.hash(userName));
             ResultSet rs = getUserFavoriteStmt.executeQuery();
             while (rs.next()) {
                 String parkCode = rs.getString("parkCode");

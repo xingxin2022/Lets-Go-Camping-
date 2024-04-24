@@ -105,7 +105,7 @@ public class UserServiceTest {
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getString("password")).thenReturn("Password123");
+        when(resultSet.getString("password")).thenReturn(Hash.hash("Password123"));
 
         LoginResponse response = userService.loginUser("testUser", "Password123");
 
