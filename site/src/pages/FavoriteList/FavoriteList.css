@@ -1,0 +1,121 @@
+button {
+    width: calc(100% - 40px);
+    padding: 10px;
+    background-color: #445940;
+    color: #f2f2f2;
+    border: none;
+    margin-top: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #bf754b;
+    color: #f2f2f2;
+}
+
+.visibilityButton{
+    width:70px;
+    height:40px;
+    border-radius: 5px;
+}
+
+
+.visibilityContainer {
+    grid-column: 3 / 4; /* Places visibilityContainer in the right column */
+    justify-self: end; /* Aligns the container to the end of the grid area */
+    margin-right: 20px; /* Adds some space to the right, adjust as needed */
+    align-content: center;
+}
+
+
+.park-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.park-box {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.park-box img {
+    width: 50%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.button-group button {
+    margin-right: 10px;
+}
+
+.modal-dialog {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    overflow-y: auto;
+}
+
+.page-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    padding-bottom: 15px;
+    padding-top: 70px;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.header {
+    height: 60px;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+}
+
+.modal {
+  display: block;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white; /* White background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  padding: 20px; /* Space inside the modal */
+  max-width: 400px; /* Max width of the modal */
+  width: 90%; /* Modal width, responsive to the screen size */
+  box-sizing: border-box; /* Ensures padding doesn't affect width */
+  text-align: center; /* Center text */
+  font-family: 'Arial', sans-serif; /* Pleasant, readable font */
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+  margin-bottom: 20px; /* Space between sections */
+}
+
+
+
