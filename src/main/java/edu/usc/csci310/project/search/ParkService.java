@@ -381,6 +381,7 @@ public class ParkService {
 public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPublic) {
     String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
     String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
+    String getPublicStatusSql = "SELECT isPublic FROM favorites WHERE username = ? LIMIT 1"; // check public status
     String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPublic, parkOrder) VALUES (?, ?, ?,?,?)";
     FavoriteResponse favoriteresponse = new FavoriteResponse("");
 
@@ -388,6 +389,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
     PreparedStatement checkFavoriteStmt = null;
     PreparedStatement getMaxOrderStmt = null;
     PreparedStatement insertFavoriteStmt = null;
+    PreparedStatement getPublicStatusStmt = null;
     ResultSet rs = null;
 
     try {
@@ -404,6 +406,15 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
         }
 //        rs.close(); // Close ResultSet after use
 
+        // Determine if there are existing favorites and fetch isPublic setting
+        boolean publicStatus = false; // default to false if no favorites exist
+        getPublicStatusStmt = connection.prepareStatement(getPublicStatusSql);
+        getPublicStatusStmt.setString(1, userName);
+        rs = getPublicStatusStmt.executeQuery();
+        if (rs.next()) {
+            publicStatus = rs.getBoolean("isPublic");
+        }
+
         // Get the maximum order
         getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
         getMaxOrderStmt.setString(1, userName);
@@ -419,7 +430,7 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
         insertFavoriteStmt.setString(1, userName);
         insertFavoriteStmt.setString(2, parkCode);
         insertFavoriteStmt.setString(3, parkName);
-        insertFavoriteStmt.setBoolean(4, isPublic);
+        insertFavoriteStmt.setBoolean(4, publicStatus);
         insertFavoriteStmt.setInt(5, maxOrder + 1);
         insertFavoriteStmt.executeUpdate();
         favoriteresponse.setMessage("Park successfully added to favorite list");
@@ -437,6 +448,9 @@ public FavoriteResponse addFavorite(String userName, String parkCode, String par
         }
         if (checkFavoriteStmt != null) {
             try { checkFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+        }
+        if (getPublicStatusStmt != null) {
+            try { getPublicStatusStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
         }
         if (getMaxOrderStmt != null) {
             try { getMaxOrderStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
