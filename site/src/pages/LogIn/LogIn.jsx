@@ -10,7 +10,7 @@ import styles from "./LogIn.module.css";
 
 function LogIn() {
     return (
-        <div className={styles.logInPage}>
+        <div className={styles.logInPage} data-testid="Login">
             <Header />
             <BannerImage />
             <div className={styles.cardsContainer}>

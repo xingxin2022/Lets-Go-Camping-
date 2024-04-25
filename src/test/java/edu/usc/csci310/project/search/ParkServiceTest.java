@@ -65,6 +65,9 @@ class ParkServiceTest {
     @Mock
     private PreparedStatement insertFavoriteStmt;
 
+    @Mock
+    private PreparedStatement getPublicStatusStmt;
+
     @Spy
     @InjectMocks
     private ParkService parkServiceSpy;
@@ -1002,13 +1005,17 @@ void searchParks_JsonProcessingException() throws Exception{
         String userName = "user";
         String parkCode = "park1";
         String parkName = "park1";
-        boolean isPrivate = true;
+        boolean isPrivate = false;
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt)
+                .thenReturn(getPublicStatusStmt).thenReturn(insertFavoriteStmt);
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
         when(resultSet.getInt(1)).thenReturn(0);
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
+
+        when(resultSet.next()).thenReturn(false);
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
 
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
@@ -1022,25 +1029,32 @@ void searchParks_JsonProcessingException() throws Exception{
     @Test
     void addFavorite_ResourceCloseException() throws SQLException {
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt)
+                .thenReturn(getPublicStatusStmt)
+                .thenReturn(getMaxOrderStmt)
+                .thenReturn(insertFavoriteStmt);
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
         when(resultSet.getInt(1)).thenReturn(0);
-        when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
 
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+        when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt(1)).thenReturn(0); // No existing favorite, maxOrder = 10
         when(insertFavoriteStmt.executeUpdate()).thenReturn(0);
         doThrow(new SQLException("ResultSet close error")).when(resultSet).close();
         doThrow(new SQLException("CheckFavoriteStmt close error")).when(checkFavoriteStmt).close();
+        doThrow(new SQLException("GetPublicStatusStmt close error")).when(getPublicStatusStmt).close();
         doThrow(new SQLException("GetMaxOrderStmt close error")).when(getMaxOrderStmt).close();
         doThrow(new SQLException("InsertFavoriteStmt close error")).when(insertFavoriteStmt).close();
         doThrow(new SQLException("Connection close error")).when(connection).close();
 
-        FavoriteResponse response = parkService.addFavorite("user", "parkCode", "parkName", false);
+        parkService.addFavorite("user", "parkCode", "parkName", false);
 
         verify(resultSet).close();
         verify(checkFavoriteStmt).close();
+        verify(getPublicStatusStmt).close();
         verify(getMaxOrderStmt).close();
         verify(insertFavoriteStmt).close();
         verify(connection).close();
@@ -1051,10 +1065,13 @@ void searchParks_JsonProcessingException() throws Exception{
     void addFavorite_NoRowImpacted() throws SQLException {
 
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt)
+                .thenReturn(getPublicStatusStmt).thenReturn(insertFavoriteStmt);
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
         when(resultSet.getInt(1)).thenReturn(0);
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getInt(1)).thenReturn(0);
@@ -1072,9 +1089,16 @@ void searchParks_JsonProcessingException() throws Exception{
     void addFavorite_TruePrivate() throws SQLException {
 
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getPublicStatusStmt)
+                .thenReturn(getMaxOrderStmt)
+                .thenReturn(insertFavoriteStmt);
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
+        when(resultSet.getInt(1)).thenReturn(0);
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        when(insertFavoriteStmt.executeUpdate()).thenReturn(1);
         when(resultSet.getInt(1)).thenReturn(0);
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
 
@@ -1093,10 +1117,13 @@ void searchParks_JsonProcessingException() throws Exception{
     void addFavorite_insertFail() throws SQLException {
 
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt).
+                thenReturn(getPublicStatusStmt).thenReturn(getMaxOrderStmt).thenReturn(insertFavoriteStmt);
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
         when(resultSet.getInt(1)).thenReturn(0);
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
 
         when(resultSet.next()).thenReturn(true);
@@ -1117,10 +1144,14 @@ void searchParks_JsonProcessingException() throws Exception{
         boolean isPrivate = true;
 
         when(dataSource.getConnection()).thenReturn(connection);
-        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt, getMaxOrderStmt, insertFavoriteStmt);
+        when(connection.prepareStatement(anyString())).thenReturn(checkFavoriteStmt, getMaxOrderStmt,
+                getPublicStatusStmt,insertFavoriteStmt);
 
         when(checkFavoriteStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false); // Park not in favorites
+
+        when(getPublicStatusStmt.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
 
         when(getMaxOrderStmt.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false); // No max order

@@ -52,7 +52,7 @@ function LogInCard() {
             // Assuming a successful response is always in JSON format
             const data = await response.json();
             setLoginMessage(data.message); // Handle success
-            fetchCurrentUser();
+            await fetchCurrentUser();
             navigate('/search');
 
         } catch (error) {

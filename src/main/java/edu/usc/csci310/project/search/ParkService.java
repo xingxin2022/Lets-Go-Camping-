@@ -378,6 +378,7 @@ public class ParkService {
 //        }
 //        return favoriteresponse;
 //    }
+
     public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPublic) {
         String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
         String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
@@ -461,6 +462,7 @@ public class ParkService {
             if (connection != null) {
                 try { connection.close(); } catch (SQLException e) { /* log or handle exception */ }
             }
+
         }
         return favoriteresponse;
     }

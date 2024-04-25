@@ -8,7 +8,6 @@ function Header() {
     const { currentUser, setCurrentUser } = useUser();
 
     const navigate = useNavigate(); // Initialize useNavigate hook
-
     const navigateToSearch = () => navigate('/search'); // Function to navigate to the search page
     const navigateToHome = () => navigate('/'); //
     const navigateToFavorite = () => navigate('/favorite');

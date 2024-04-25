@@ -8,7 +8,6 @@ import CompareList from "./pages/CompareList/CompareList";
 import FavoriteList from "./pages/FavoriteList/FavoriteList";
 
 
-
 function App(){
     return (
         <div>
@@ -17,9 +16,8 @@ function App(){
                 <Route path="*" element={<Navigate to="/" replace />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/search" element={<Search />} />
-                <Route path="/compare" element={<CompareList />} />
                 <Route path="/favorite" element={<FavoriteList />} />
-
+                <Route path="/compare" element={<CompareList />} />
             </Routes>
         </div>
     )
