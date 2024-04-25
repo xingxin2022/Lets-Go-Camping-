@@ -378,16 +378,18 @@ public class ParkService {
 //        }
 //        return favoriteresponse;
 //    }
-    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPrivate) {
+    public FavoriteResponse addFavorite(String userName, String parkCode, String parkName, boolean isPublic) {
         String checkFavoriteSql = "SELECT COUNT(*) FROM favorites WHERE username = ? AND parkcode = ?";
         String getMaxOrderSql = "SELECT MAX(parkOrder) FROM favorites WHERE username = ?";
-        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES (?, ?, ?,?,?)";
+        String getPublicStatusSql = "SELECT isPublic FROM favorites WHERE username = ? LIMIT 1"; // check public status
+        String insertFavoriteSql = "INSERT INTO favorites (username, parkCode, parkName, isPublic, parkOrder) VALUES (?, ?, ?,?,?)";
         FavoriteResponse favoriteresponse = new FavoriteResponse("");
 
         Connection connection = null;
         PreparedStatement checkFavoriteStmt = null;
         PreparedStatement getMaxOrderStmt = null;
         PreparedStatement insertFavoriteStmt = null;
+        PreparedStatement getPublicStatusStmt = null;
         ResultSet rs = null;
 
         try {
@@ -404,6 +406,15 @@ public class ParkService {
             }
 //        rs.close(); // Close ResultSet after use
 
+            // Determine if there are existing favorites and fetch isPublic setting
+            boolean publicStatus = false; // default to false if no favorites exist
+            getPublicStatusStmt = connection.prepareStatement(getPublicStatusSql);
+            getPublicStatusStmt.setString(1, userName);
+            rs = getPublicStatusStmt.executeQuery();
+            if (rs.next()) {
+                publicStatus = rs.getBoolean("isPublic");
+            }
+
             // Get the maximum order
             getMaxOrderStmt = connection.prepareStatement(getMaxOrderSql);
             getMaxOrderStmt.setString(1, userName);
@@ -419,7 +430,7 @@ public class ParkService {
             insertFavoriteStmt.setString(1, userName);
             insertFavoriteStmt.setString(2, parkCode);
             insertFavoriteStmt.setString(3, parkName);
-            insertFavoriteStmt.setBoolean(4, isPrivate);
+            insertFavoriteStmt.setBoolean(4, publicStatus);
             insertFavoriteStmt.setInt(5, maxOrder + 1);
             insertFavoriteStmt.executeUpdate();
             favoriteresponse.setMessage("Park successfully added to favorite list");
@@ -437,6 +448,9 @@ public class ParkService {
             }
             if (checkFavoriteStmt != null) {
                 try { checkFavoriteStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
+            }
+            if (getPublicStatusStmt != null) {
+                try { getPublicStatusStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
             }
             if (getMaxOrderStmt != null) {
                 try { getMaxOrderStmt.close(); } catch (SQLException e) { /* log or handle exception */ }
@@ -478,41 +492,19 @@ public class ParkService {
 
     @PostConstruct
     public void initializeParkDatabase() {
-        // SQL statement to drop the table if it exists
-        String dropFavoritesTableSql = "DROP TABLE IF EXISTS favorites";
-
-        // SQL statement to create the table
-        String createFavoritesTableSql = "CREATE TABLE favorites (" +
+        String createFavoritesTableSql = "CREATE TABLE IF NOT EXISTS favorites (" +
                 "username TEXT NOT NULL, " +
                 "parkCode TEXT NOT NULL, " +
                 "parkName TEXT NOT NULL, " +
-                "isPrivate BOOLEAN NOT NULL DEFAULT TRUE, " +
+                "isPublic BOOLEAN NOT NULL DEFAULT TRUE, " +
                 "parkOrder INTEGER, " +
                 "PRIMARY KEY (username, parkCode))";
 
-        // SQL statements to insert initial data
-        String insertSampleDataSql =
-                "INSERT INTO favorites (username, parkCode, parkName, isPrivate, parkOrder) VALUES " +
-                        "('LesenmiaoYu', 'PARK1', 'TestPark01', FALSE, 1), " +
-                        "('EricLiu', 'PARK1', 'TestPark01', FALSE, 1), " +
-                        "('SabrinaYang', 'PARK1', 'TestPark01', FALSE, 1), " +
-                        "('LesenmiaoYu', 'PARK2', 'TestPark02', FALSE, 2), " +
-                        "('SylviaGuo', 'PARK2', 'TestPark02', TRUE, 1), " +
-                        "('EricLiu', 'PARK3', 'TestPark03', FALSE, 2), " +
-                        "('EricLiu', 'PARK5', 'TestPark05', FALSE, 3), " +
-                        "('SylviaGuo', 'PARK4', 'TestPark04', TRUE, 2), " +
-                        "('SabrinaYang', 'PARK5', 'TestPark05', FALSE, 2);";
-
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
-            // Drop the existing table
-            stmt.execute(dropFavoritesTableSql);
-            // Create a new table
             stmt.execute(createFavoritesTableSql);
-            // Insert sample data
-            stmt.execute(insertSampleDataSql);
         } catch (SQLException e) {
-            System.out.println("Error initializing favorites database: " + e.getMessage());
+            System.out.println("Error initializing database: " + e.getMessage());
         }
     }
 
