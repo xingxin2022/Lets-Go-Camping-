@@ -560,4 +560,60 @@ public class FavoriteServiceTest {
         assertEquals("Failed to remove park: Connection failure", exception.getMessage());
     }
 
+    @Test
+    public void getPublic() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getBoolean("isPublic")).thenReturn(true);
+        boolean result = favoriteServiceSpy.getPublic("user");
+        assertTrue(result);
+    }
+
+    @Test
+    public void getPublic_null() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+        boolean result = favoriteServiceSpy.getPublic("user");
+        assertFalse(result);
+    }
+
+    @Test
+    public void getPublic_ShouldThrowSQLException_WhenDatabaseAccessFails() throws SQLException {
+        // Arrange
+        String expectedMessage = "Failed to get public status: Database access error";
+        when(dataSource.getConnection()).thenThrow(new SQLException("Database access error"));
+
+        // Act
+        Exception exception = assertThrows(SQLException.class, () -> {
+            favoriteServiceSpy.getPublic("user");
+        });
+
+        // Assert
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("Failed to get public status:"));
+    }
+
+    @Test
+    void getPublic_ResourceCloseException() throws SQLException {
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getBoolean("isPublic")).thenReturn(true);
+        doThrow(new SQLException("ResultSet close error")).when(resultSet).close();
+        doThrow(new SQLException("preparedStatement close error")).when(preparedStatement).close();
+        doThrow(new SQLException("Connection close error")).when(connection).close();
+
+        favoriteServiceSpy.getPublic("user");
+
+        verify(resultSet).close();
+
+        verify(preparedStatement).close();
+        verify(connection).close();
+    }
+
 }

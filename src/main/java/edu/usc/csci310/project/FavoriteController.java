@@ -88,4 +88,16 @@ public class FavoriteController {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping("/fetchPublicStatus")
+    public ResponseEntity<?> fetchPublicStatus(@RequestParam String username) {
+        try {
+            Boolean isPublic = favoriteService.getPublic(username);
+            System.out.println(isPublic);
+            return ResponseEntity.ok(isPublic);
+        } catch (SQLException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to get public status: " + e.getMessage());
+        }
+    }
 }

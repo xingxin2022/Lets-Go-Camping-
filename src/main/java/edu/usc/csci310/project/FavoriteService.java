@@ -292,5 +292,36 @@ public class FavoriteService {
         }
     }
 
+    public Boolean getPublic(String username) throws SQLException{
+        String sql = "SELECT isPublic FROM favorites WHERE username = ? LIMIT 1";
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            connection = dataSource.getConnection();
+            stmt = connection.prepareStatement(sql);
+            stmt.setString(1, username);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean("isPublic");
+            } else {
+                return false;
+            }
+        } catch (SQLException e) {
+            throw new SQLException("Failed to get public status: ", e);
+        }finally {
+            // It's important to close resources in the finally block to avoid resource leaks.
+            if (rs != null) {
+                try { rs.close(); } catch (SQLException e) { /* ignored */ }
+            }
+            if (stmt != null) {
+                try { stmt.close(); } catch (SQLException e) { /* ignored */ }
+            }
+            if (connection != null) {
+                try { connection.close(); } catch (SQLException e) { /* ignored */ }
+            }
+        }
+    }
+
 
 }

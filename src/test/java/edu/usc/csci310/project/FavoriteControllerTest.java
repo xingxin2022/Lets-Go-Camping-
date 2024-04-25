@@ -11,6 +11,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -109,6 +110,22 @@ public class FavoriteControllerTest {
                 .andExpect(content().json("{\"message\":\"Retrieved successfully\",\"success\":true}"));
 
         verify(favoriteService, times(1)).getFavorites("user");
+    }
+
+
+    @Test
+    public void getPublic_ShouldReturnSuccess_WhenValidRequest() throws Exception {
+        // Arrange
+        when(favoriteService.getPublic(anyString())).thenReturn(false);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/favorites/fetchPublicStatus")
+                        .param("username", "user")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+
+        verify(favoriteService, times(1)).getPublic("user");
     }
 
     @Test
@@ -221,4 +238,19 @@ public class FavoriteControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message").value("Service failed"));
     }
+    @Test
+    public void getPublic_ShouldHandleSQLException_WhenDatabaseErrorOccurs() throws Exception {
+        // Arrange
+        when(favoriteService.getPublic(anyString())).thenThrow(new SQLException("Database access error"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/favorites/fetchPublicStatus")
+                        .param("username", "user")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string("Failed to get public status: Database access error"));
+
+        verify(favoriteService, times(1)).getPublic("user");
+    }
+
 }
