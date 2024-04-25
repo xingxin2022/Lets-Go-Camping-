@@ -112,36 +112,14 @@ public class UserService {
     }
     @PostConstruct
     public void initializeDatabase() {
-        // SQL statement to drop the table if it exists
-        String dropUsersTableSql = "DROP TABLE IF EXISTS users";
-
-
-        // SQL statement to create the table
-        String createUsersTableSql = "CREATE TABLE users (" +
+        String createTableSql = "CREATE TABLE IF NOT EXISTS users (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "username TEXT NOT NULL UNIQUE, " +
                 "password TEXT NOT NULL)";
 
-
-        // SQL statements to insert initial data FOR TESTING RIGHT NOW!
-        String[] insertUserSql = {
-                "INSERT INTO users (username, password) VALUES ('EricLiu', 'Eric1234!')",
-                "INSERT INTO users (username, password) VALUES ('SylviaGuo', 'Sylvia1234!')",
-                "INSERT INTO users (username, password) VALUES ('LesenmiaoYu', 'David1234!')",
-                "INSERT INTO users (username, password) VALUES ('SabrinaYang', 'Sabrina1234!')"
-        };
-
-
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
-            // Drop the existing table
-            stmt.execute(dropUsersTableSql);
-            // Create a new table
-            stmt.execute(createUsersTableSql);
-            // Iterate over the SQL statements to insert each user
-            for (String sql : insertUserSql) {
-                stmt.execute(sql);
-            }
+            stmt.execute(createTableSql);
         } catch (SQLException e) {
             System.out.println("Error initializing database: " + e.getMessage());
         }
