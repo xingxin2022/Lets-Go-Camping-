@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import styles from './FriendList.module.css';
 import { Tooltip as ReactTooltip } from 'react-tooltip';
