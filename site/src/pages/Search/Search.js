@@ -103,7 +103,7 @@ function Search() {
     }, [parks, userFavorites]);
 
     return (
-        <div className="page-container">
+        <div className="page-container" data-testid="Search">
             <Header/>
 
             <br></br>
