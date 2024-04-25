@@ -73,7 +73,6 @@ function Search() {
             });
     }
 
-
     useEffect(() => {
         const fetchUserFavorites = async () => {
             try{

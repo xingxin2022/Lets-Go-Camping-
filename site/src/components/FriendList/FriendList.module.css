@@ -1,3 +1,4 @@
+
 .friendListContainer {
     display: flex;
     flex-wrap: wrap;
@@ -8,13 +9,14 @@
     border-radius: 25px;
     background: #7A8C72;
     max-height: calc(100vh - 40px);
-    overflow-y: auto;
+    overflow-y: visible;
     margin: 40px;
     box-sizing: border-box;
-    width: calc(100% - 80px); /* Same width as friendListContainer minus the horizontal margin */
+    width: calc(100% - 80px);
 }
 
 .friendItem {
+    position: relative;
     width: 300px;
     height: 100px;
     display: flex;
@@ -26,6 +28,7 @@
     transition: border-color 0.3s ease;
     cursor: pointer;
 }
+
 
 .friendItem:hover,
 .friendItem.active {
@@ -41,6 +44,7 @@
 
 .friendItemContent {
     display: flex;
+    font-size: 16px;
     flex-direction: column;
 }
 
@@ -88,4 +92,37 @@
     /* Additional styles to match the specific font and size might be added here */
     font-size: 16px; /* Example font size */
     color: #F2F2F2; /* Color to match your button or other text on the page */
+}
+
+.parkItem {
+    display: block;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.ratio {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+}
+.tooltip {
+    visibility: hidden;
+    width: 200px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+.ratio:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
 }

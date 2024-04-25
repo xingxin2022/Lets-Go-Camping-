@@ -1,4 +1,5 @@
 package edu.usc.csci310.project;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,13 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.usc.csci310.project.exceptions.InvalidPasswordException;
+import edu.usc.csci310.project.exceptions.LoginFailedException;
+import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,11 +30,35 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import edu.usc.csci310.project.exceptions.InvalidPasswordException;
 import edu.usc.csci310.project.exceptions.LoginFailedException;
 import edu.usc.csci310.project.exceptions.UserAlreadyExistsException;
 import org.springframework.test.web.servlet.MvcResult;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @WebMvcTest(UserController.class)
 @ExtendWith(MockitoExtension.class)
@@ -193,6 +225,94 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Logged out successfully")));
     }
+
+    @Test
+    public void getAllUsernames_ShouldReturnListOfUsernames() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2", "user3");
+        when(userService.getAllUsernames()).thenReturn(usernames);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/users/get-users")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0]", is("user1")))
+                .andExpect(jsonPath("$[1]", is("user2")))
+                .andExpect(jsonPath("$[2]", is("user3")));
+
+        verify(userService, times(1)).getAllUsernames();
+    }
+
+    @Test
+    public void getUserFavoritePark_ShouldReturnListOfParks() throws Exception {
+        String username = "user1";
+        List<ParkInfo> parkInfos = new ArrayList<>();
+        parkInfos.add(new ParkInfo("Yellowstone", "YNP", false));
+        when(userService.getFavoriteParksByUsername(username)).thenReturn(parkInfos);
+
+        mockMvc.perform(get("/api/users/{username}/parks", username)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].parkName", is("Yellowstone")))
+                .andExpect(jsonPath("$[0].parkCode", is("YNP")));
+    }
+
+
+    @Test
+    public void getUnionOfFavoriteParks_ShouldReturnListOfParkCounts() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2");
+        List<ParkCount> parkCounts = new ArrayList<>();
+        parkCounts.add(new ParkCount("Yellowstone", "YNP"));
+        when(userService.getUnionFavoriteParks(usernames)).thenReturn(parkCounts);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/favorite-parks/union")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(usernames)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].parkName", is("Yellowstone")))
+                .andExpect(jsonPath("$[0].parkCode", is("YNP")));
+
+        verify(userService, times(1)).getUnionFavoriteParks(usernames);
+    }
+
+    @Test
+    public void getUnionOfFavoriteParks_ShouldReturnInternalServerError_WhenRuntimeException() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2");
+        when(userService.getUnionFavoriteParks(usernames)).thenThrow(new RuntimeException("Internal server error occurred"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/favorite-parks/union")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(usernames)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("Internal server error occurred")));
+
+        verify(userService, times(1)).getUnionFavoriteParks(usernames);
+    }
+
+    @Test
+    public void getUnionOfFavoriteParks_ShouldReturnBadRequest_WhenException() throws Exception {
+        // Arrange
+        List<String> usernames = Arrays.asList("user1", "user2");
+        when(userService.getUnionFavoriteParks(usernames)).thenThrow(new Exception("Bad request due to invalid input"));
+
+        // Act & Assert
+        mockMvc.perform(post("/api/users/favorite-parks/union")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(usernames)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Bad request due to invalid input")));
+
+        verify(userService, times(1)).getUnionFavoriteParks(usernames);
+    }
+
+
 
 }
 
