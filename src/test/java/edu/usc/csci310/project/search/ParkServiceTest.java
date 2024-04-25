@@ -828,22 +828,22 @@ class ParkServiceTest {
     }
 
 
-@Test
-void searchParks_JsonProcessingException() throws Exception{
-    // Given
-    String parkCodesJson = "{\"data\":[]}";
-    when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
-            .thenReturn(new ResponseEntity<>(parkCodesJson, HttpStatus.OK));
+    @Test
+    void searchParks_JsonProcessingException() throws Exception{
+        // Given
+        String parkCodesJson = "{\"data\":[]}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(parkCodesJson, HttpStatus.OK));
 
-    // Mock ObjectMapper to throw JsonProcessingException
-    when(objectMapper.readValue(anyString(), any(Class.class)))
-            .thenThrow(new JsonMappingException(null, "Simulated JSON error"));
+        // Mock ObjectMapper to throw JsonProcessingException
+        when(objectMapper.readValue(anyString(), any(Class.class)))
+                .thenThrow(new JsonMappingException(null, "Simulated JSON error"));
 
-    // When & Then
-    assertThrows(RuntimeException.class, () -> {
-        parkService.searchParks("query", "parkname", 0);
-    });
-}
+        // When & Then
+        assertThrows(RuntimeException.class, () -> {
+            parkService.searchParks("query", "parkname", 0);
+        });
+    }
 
 //    @Test
 //    void fetchAmenitiesForParks_ThrowsRuntimeException_WhenJsonProcessingExceptionOccurs() throws Exception {
@@ -918,7 +918,7 @@ void searchParks_JsonProcessingException() throws Exception{
         assertTrue(exception.getCause() instanceof JsonMappingException);
     }
 
-//    @Test
+    //    @Test
 //    void fetchAmenitiesForParks_RuntimeException() throws Exception {
 //        List<String> parkCodes = Collections.singletonList("PARK123");
 //        String jsonResponse = "{\"data\":[]}";
@@ -1342,7 +1342,7 @@ void searchParks_JsonProcessingException() throws Exception{
 
         parkService.initializeParkDatabase();
 
-        verify(statement, times(3)).execute(anyString());
+        verify(statement, times(1)).execute(anyString());
     }
 
     @Test

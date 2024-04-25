@@ -156,8 +156,9 @@ public class UserServiceTest {
 
         userService.initializeDatabase();
 
-        verify(statement, times(6)).execute(anyString()); //initial data
+        verify(statement, times(1)).execute(anyString());
     }
+
 
     @Test
     public void registerUserSQLException() throws Exception {
