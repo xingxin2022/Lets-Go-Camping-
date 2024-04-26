@@ -108,7 +108,6 @@ class ParkTest {
         address1.setLine2("2");
         address1.setLine3("3");
 
-
         Park.Address address2 = new Park.Address();
         address2.setLine1("456 Yellowstone Park Road");
         address2.setCity("Yellowstone National Park");
@@ -169,8 +168,7 @@ class ParkTest {
         image.setAltText("testAltText");
         image.setCaption("testCaption");
         image.setUrl("testUrl");
-
-
+        
         assertEquals("testCredit", image.getCredit());
         assertEquals("testTitle", image.getTitle());
         assertEquals("testAltText", image.getAltText());

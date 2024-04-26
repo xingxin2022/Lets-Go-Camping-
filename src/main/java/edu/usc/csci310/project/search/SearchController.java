@@ -2,9 +2,11 @@ package edu.usc.csci310.project.search;
 
 import edu.usc.csci310.project.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -32,7 +34,7 @@ public class SearchController {
 
     @PostMapping("/add-favorite")
     public ResponseEntity<FavoriteResponse> addFavorite(@RequestBody FavoriteRequest request ) {
-        FavoriteResponse response = parkService.addFavorite(request.getUserName(), request.getParkCode(), request.getParkName(), request.isPrivate());
+        FavoriteResponse response = parkService.addFavorite(request.getUserName(), request.getParkCode(), request.getParkName(), request.isPublic());
         return ResponseEntity.ok(response);
     }
 
@@ -41,4 +43,17 @@ public class SearchController {
         List<String> favoriteParkCodes = parkService.getFavoriteParkCodes(username);
         return favoriteParkCodes;
     }
+
+    @PostMapping("/search-park-by-id")
+    public ResponseEntity<ParkSearchResponse> searchParkById(@RequestBody SingleParkSearchRequest request) {
+        List<String> favoriteParkCodes = Collections.singletonList(request.getParkCode());
+        List<Park> parks = parkService.fetchParkDetailsBatch(0, favoriteParkCodes);
+        ParkSearchResponse response = new ParkSearchResponse();
+        response.setData(parks);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
+    }
+
+
 }

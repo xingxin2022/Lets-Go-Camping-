@@ -22,11 +22,6 @@ const parkWithFavorite = {
   isFavorite: true,
 };
 
-const parkWithoutFavorite = {
-  ...parkWithFavorite,
-  isFavorite: false,
-};
-
 const parkWithoutImageAndAddress = {
   fullName: 'Yosemite National Park',
   parkCode: 'yose',
@@ -62,7 +57,9 @@ test('Park component adds to favorites on button click', async () => {
       userFavorites={userFavoritesMock}
     />
   );
-
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
+  fireEvent.mouseLeave(screen.getByText(parkMock.fullName));
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
   fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
@@ -86,7 +83,7 @@ test('Park component adds to favorites on button click', async () => {
       userName: 'testUser',
       parkCode: parkMock.parkCode,
       parkName: parkMock.fullName,
-      isPrivate: true,
+      isPublic: false,
     }),
   }));
 
@@ -111,7 +108,7 @@ test('Already favorited when adds to favorites on button click', async () => {
       userFavorites={userFavoritesMock}
     />
   );
-
+  fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
   fireEvent.click(screen.getByRole('button', { name: '+' }));
 
   await waitFor(() => {
@@ -133,7 +130,7 @@ test('Already favorited when adds to favorites on button click', async () => {
       userName: 'testUser',
       parkCode: parkMock.parkCode,
       parkName: parkMock.fullName,
-      isPrivate: true,
+      isPublic: false,
     }),
   }));
 
@@ -152,7 +149,7 @@ test('handles fetch failure', async () => {
           userFavorites={userFavoritesMock}
         />
       );
-
+      fireEvent.mouseEnter(screen.getByText(parkMock.fullName));
       fireEvent.click(screen.getByRole('button', { name: '+' }));
         const consoleSpy = jest.spyOn(console, 'error');
         await waitFor(() => {

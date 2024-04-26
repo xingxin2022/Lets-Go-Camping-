@@ -41,19 +41,19 @@ Feature: Login page with create account and login.
     When I click the button to navigate to the login page
     Then I should be sent back to the login page
 
-#  Scenario: confirm cancel action when creating account
-#    Given I am on the login page
-#    When I click the cancel button
-#    Then I should see a confirmation dialog
-#    And I click the confirm button
-#    Then I should be on the home page
-#
-#  Scenario: cancel the cancel action when creating account
-#    Given I am on the login page
-#    When I click the cancel button
-#    Then I should see a confirmation dialog
-#    And I click the cancel button
-#    Then I should still be on the create account page
+  Scenario: confirm cancel action when creating account
+    Given I am on the signup page
+    When I click the cancel button
+    Then I should see a confirmation dialog
+    And I click the confirm button on the dialog
+    Then I should be sent back to the login page
+
+  Scenario: cancel the cancel action when creating account
+    Given I am on the signup page
+    When I click the cancel button
+    Then I should see a confirmation dialog
+    And I click the cancel button on the dialog
+    Then I should still be on the signup page
 
   Scenario: successful login
     Given I am on the login page
@@ -71,10 +71,8 @@ Feature: Login page with create account and login.
     And I click the login button
     Then I should see login error "Username does not exist"
 
-
   Scenario: login with incorrect password
     Given I am on the login page
-
     And I have an account with the username "username1" and password "Password123"
     When I enter "username1" into login username field
     And I enter "Password1" into login password field

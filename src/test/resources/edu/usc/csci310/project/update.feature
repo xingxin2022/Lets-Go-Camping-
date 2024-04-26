@@ -1,5 +1,5 @@
 Feature: Update and review a favorite park list
-  Scenario: Visiting favorite park list
+  Scenario: Default order of favorite park list
     Given I have a favorite park list
     When I visit the favorite park list page
     Then I should see the list of my favorite parks
@@ -63,3 +63,33 @@ Feature: Update and review a favorite park list
     When I visit the search page
     And I return to the favorite park list page
     Then the list should be private
+
+  Scenario: delete all operation is functional
+    Given I am on the favorite park list page
+    When I click the delete all button
+    Then I should see a pop-up to confirm deletion
+    And I click confirm on the pop-up to confirm deletion
+    And the list should be empty
+
+  Scenario: delete all cancel is functional
+    Given I am on the favorite park list page
+    When I click the delete all button
+    Then I should see a pop-up to confirm deletion
+    And I click cancel on the pop-up to cancel deletion
+    And the list should remain the same
+
+  Scenario: navigate to search
+    Given I am on the favorite park list page
+    When I click the search button in the header
+    Then I should be taken to the search page
+
+  Scenario: navigate to compare list
+    Given I am on the favorite park list page
+    When I click the compare list button in the header
+    Then I should be taken to the compare list page
+
+  Scenario: Logout button is functional
+    Given I am on the search results page
+    When I click the logout button
+    Then I should be taken to the login page
+    And I should be logged out

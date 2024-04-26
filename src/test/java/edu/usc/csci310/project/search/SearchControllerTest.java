@@ -20,6 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
 
@@ -79,7 +80,7 @@ class SearchControllerTest {
         favoriteRequest.setUserName("testUser");
         favoriteRequest.setParkCode("yellow");
         favoriteRequest.setParkName("yellow");
-        favoriteRequest.setPrivate(true);
+        favoriteRequest.setPublic(false);
 
         FavoriteResponse favoriteResponse = new FavoriteResponse("Park successfully added to favorite list");
 
@@ -109,4 +110,43 @@ class SearchControllerTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0]", is("yellow")));
     }
+
+
+    @Test
+    void searchParkById_Success() throws Exception {
+        SingleParkSearchRequest request = new SingleParkSearchRequest();
+        request.setParkCode("YNP");
+
+        Park park = new Park();
+        park.setId("1");
+        park.setFullName("Yellowstone National Park");
+
+        List<Park> parks = Collections.singletonList(park);
+        given(parkService.fetchParkDetailsBatch(0, Collections.singletonList("YNP"))).willReturn(parks);
+
+        mockMvc.perform(post("/api/search/search-park-by-id")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data[0].id", is("1")))
+                .andExpect(jsonPath("$.data[0].fullName", is("Yellowstone National Park")));
+    }
+
+    @Test
+    void searchParkById_NotFound() throws Exception {
+        SingleParkSearchRequest request = new SingleParkSearchRequest();
+        request.setParkCode("INVALID_CODE");
+
+        given(parkService.fetchParkDetailsBatch(0, Collections.singletonList("INVALID_CODE"))).willReturn(Collections.emptyList());
+
+        mockMvc.perform(post("/api/search/search-park-by-id")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty());
+    }
+
 }

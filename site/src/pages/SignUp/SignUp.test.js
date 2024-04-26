@@ -2,6 +2,7 @@ import React from "react";
 import {fireEvent, render, screen, waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
+import { UserProvider, useUser } from '../../UserContext';
 import { act } from "react-dom/test-utils"; // Import act
 
 import SignUp from "./SignUp";
@@ -23,13 +24,25 @@ beforeEach(() => {
     global.fetch = jest.fn();
 });
 
+jest.mock('../../UserContext', () => ({
+  UserProvider: ({ children }) => <div>{children}</div>,
+  useUser: () => ({
+    currentUser: 'mockedUser',
+    setCurrentUser: jest.fn(),
+    fetchCurrentUser: jest.fn(),
+  }),
+}));
+
+
 //-------------------------
 
 test("SignUpCard component renders correctly", () => {
     render(
-        <BrowserRouter>
-            <SignUpCard />
-        </BrowserRouter>
+        <UserProvider>
+            <BrowserRouter>
+              <SignUp />
+            </BrowserRouter>
+          </UserProvider>
     );
 
     //expect(screen.getByText(/Sign Up/i)).toBeInTheDocument();
@@ -41,7 +54,11 @@ test("SignUpCard component renders correctly", () => {
 
 test('handles successful login and navigation', async () => {
 
-    render(<SignUp />, { wrapper: BrowserRouter });
+    render(<UserProvider>
+                       <BrowserRouter>
+                           <SignUpCard />
+                       </BrowserRouter>
+                   </UserProvider>);
 
     await waitFor(() => {
         expect(screen.getByText("Have an account already?")).toBeInTheDocument();
@@ -55,7 +72,14 @@ test("submitting form with valid data shows success message", async () => {
         json: async () => ({ message: "Registration successful" }),
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+        <UserProvider>
+            <BrowserRouter>
+                <SignUpCard />
+            </BrowserRouter>
+        </UserProvider>
+    );
     const usernameInput = screen.getByTestId("signup-username");
     const passwordInput = screen.getByTestId("signup-password");
     const confirmPasswordInput = screen.getByTestId("signup-password-confirm");
@@ -85,7 +109,14 @@ test("submitting form with invalid data shows error message", async () => {
         }),
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+        <UserProvider>
+            <BrowserRouter>
+                <SignUpCard />
+            </BrowserRouter>
+        </UserProvider>
+    );
     // Similar steps for filling the form and clicking the sign up button as the above test
     // Expect to see "Username already taken" error message
 });
@@ -100,7 +131,14 @@ test("handling non-JSON response correctly", async () => {
         text: async () => "A plain text error message"
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+        <UserProvider>
+            <BrowserRouter>
+                <SignUpCard />
+            </BrowserRouter>
+        </UserProvider>
+    );
     // Similar steps for form submission as previous tests
     // Expect to see the plain text error message
 });
@@ -108,7 +146,14 @@ test("handling non-JSON response correctly", async () => {
 test("network error during form submission", async () => {
     fetch.mockRejectedValue(new Error("Network error"));
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     // Fill out the form and submit
     // Expect to see a generic network error message
 });
@@ -125,10 +170,17 @@ test("navigate back to log-in", async () => {
 });
 
 test("SignUpCard component renders correctly", () => {
+//    render(
+//        <BrowserRouter>
+//            <SignUpCard />
+//        </BrowserRouter>
+//    );
     render(
-        <BrowserRouter>
-            <SignUpCard />
-        </BrowserRouter>
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
     );
 
     //expect(screen.getByText(/Sign Up/i)).toBeInTheDocument();
@@ -144,7 +196,14 @@ test("submitting form with valid data shows success message", async () => {
         json: async () => ({ message: "Registration successful" }),
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     const usernameInput = screen.getByTestId("signup-username");
     const passwordInput = screen.getByTestId("signup-password");
     const confirmPasswordInput = screen.getByTestId("signup-password-confirm");
@@ -174,7 +233,14 @@ test("submitting form with invalid data shows error message", async () => {
         }),
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     // Similar steps for filling the form and clicking the sign up button as the above test
     // Expect to see "Username already taken" error message
 });
@@ -189,7 +255,14 @@ test("handling non-JSON response correctly", async () => {
         text: async () => "A plain text error message"
     });
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     // Similar steps for form submission as previous tests
     // Expect to see the plain text error message
 });
@@ -197,13 +270,27 @@ test("handling non-JSON response correctly", async () => {
 test("network error during form submission", async () => {
     fetch.mockRejectedValue(new Error("Network error"));
 
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     // Fill out the form and submit
     // Expect to see a generic network error message
 });
 
 test("navigate back to log-in", async () => {
-    render(<SignUpCard />, { wrapper: BrowserRouter });
+//    render(<SignUpCard />, { wrapper: BrowserRouter });
+    render(
+            <UserProvider>
+                <BrowserRouter>
+                    <SignUpCard />
+                </BrowserRouter>
+            </UserProvider>
+        );
     const backButton = screen.getByText(/Back to Log-in/i);
 
     await act(async () => {
@@ -332,6 +419,42 @@ test('handles fetch request failure gracefully', async () => {
     // Verify the error state is set
     expect(screen.getByText('Failed to send request. Please try again later.')).toHaveStyle(`color: red`);
 });
+
+test("clicking Cancel triggers confirmation dialog", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    expect(screen.getByText(/Confirm Cancel/i)).toBeInTheDocument();
+    expect(screen.getByText(/Keep Signing Up/i)).toBeInTheDocument();
+});
+
+test("confirming cancel navigates away", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    const confirmCancelButton = screen.getByRole('button', { name: /Confirm Cancel/i });
+    fireEvent.click(confirmCancelButton);
+
+    await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+});
+
+test("denying cancel keeps the user on the sign-up form", async () => {
+    render(<SignUpCard />, { wrapper: BrowserRouter });
+
+    const cancelButton = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelButton);
+    const keepSigningUpButton = screen.getByRole('button', { name: /Keep Signing Up/i });
+    fireEvent.click(keepSigningUpButton);
+
+    await waitFor(() => {
+        expect(screen.getByTestId('signup-username')).toBeInTheDocument();
+    });
+});
+
 
 //--------------------------
 

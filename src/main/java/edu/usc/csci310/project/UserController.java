@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -60,7 +63,7 @@ public class UserController {
     public ResponseEntity<String> getCurrentUser(HttpSession session) {
         String user = (String) session.getAttribute("username");
         return user != null ? ResponseEntity.ok(user) :
-        ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not logged in");
 
     }
 
@@ -68,6 +71,28 @@ public class UserController {
     public ResponseEntity<?> logoutUser(HttpSession session) {
         session.invalidate();
         return ResponseEntity.ok("Logged out successfully");
+    }
+
+    @GetMapping("/get-users")
+    public List<String> getAllUsernames() {
+        return userService.getAllUsernames();
+    }
+
+    @GetMapping("/{username}/parks")
+    public List<ParkInfo> getUserFavoritePark(@PathVariable String username) {
+        return userService.getFavoriteParksByUsername(username);
+    }
+
+    @PostMapping("/favorite-parks/union")
+    public ResponseEntity<?> getUnionOfFavoriteParks(@RequestBody List<String> usernames) {
+        try {
+            List<ParkCount> parkCounts = userService.getUnionFavoriteParks(usernames);
+            return ResponseEntity.ok(parkCounts);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
 

@@ -3,9 +3,10 @@ import './Park.css';
 
 function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorites , testId}) {
   const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
+  const [showAddToFavorites, setShowAddToFavorites] = useState(false);
   return (
-    <div data-testid={testId} className="park-container">
-          <h3 className="park-name" onClick = {()=>onSetShowPark(park)}>
+    <div  id="park-card" data-testid={testId} className="park-container" onMouseEnter={() => setShowAddToFavorites(true)} onMouseLeave={() => setShowAddToFavorites(false)}>
+          <h3 id="park-name" className="park-name" onClick = {()=>onSetShowPark(park)}>
           {park.fullName}  {park.isFavorite ? " 🌟️ " : ""}
           </h3>
           <img
@@ -18,7 +19,8 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                                   ? park.addresses[0].line1 + ', '+ park.addresses[0].city + ', '+park.addresses[0].stateCode+', ' + park.addresses[0].countryCode
                                   : "Address not available"}</p>
 
-          <button
+          {showAddToFavorites && (<button
+                  data-testid="addToFav"
             onClick={() => {
                 fetch("/api/search/add-favorite", {
                     method: "POST",
@@ -29,7 +31,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                         userName: currentUser,
                         parkCode: park.parkCode,
                         parkName: park.fullName,
-                        isPrivate: true,
+                        isPublic: false,
                     }),
                 })
                     .then((response) => response.json())
@@ -54,7 +56,8 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
           >
              +
           </button>
-          {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
+          )}
+          {favoriteConfirmation && <div  id="confirmation-message"  className="confirmation-message">{favoriteConfirmation}</div>}
           </div>
   );
 }
