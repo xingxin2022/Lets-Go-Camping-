@@ -92,6 +92,38 @@ test('Search by Park Name Button', async () => {
    expect(fetch).toHaveBeenCalledTimes(2);
 });
 
+test('Search by Pressing Enter', async () => {
+   const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
+   let formattedQuery="yellowstone_national_park";
+
+   let search_url = `https://developer.nps.gov/api/v1/parks?limit=10&q=${formattedQuery}&api_key=${key}`;
+   fetch.mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({})).mockResponseOnce(JSON.stringify({
+       data: {
+           id: "1",
+           fullName: "Bryce Canyon National Park",
+           parkCode: "brca",
+           url: "https://www.nps.gov/brca/index.htm",
+           description: "Hoodoos (irregular columns of rock) exist on every continent, but here is the largest concentration found anywhere on Earth.",
+           activities: [{ name: "Hiking" }]
+       }
+   }));
+   const user = userEvent.setup();
+//   render(<Search/>, {wrapper: BrowserRouter});
+   render(
+       <UserProvider>
+           <BrowserRouter>
+             <Search />
+           </BrowserRouter>
+         </UserProvider>
+   );
+   expect(screen.getByText(/Let's Go Camping!/)).toBeInTheDocument();
+   await waitFor(() =>user.click(screen.getByRole('radio', {name: /Amenity/i})));
+   await waitFor(() =>user.click(screen.getByRole('radio', {name: /Park Name/i})));
+   expect(screen.getByPlaceholderText(/Search national park by parkname.../i)).toBeInTheDocument();
+   await waitFor( () =>user.type(screen.getByPlaceholderText(/Search national park by parkname.../i), 'yellowstone_national_park{enter}'));
+   expect(fetch).toHaveBeenCalledTimes(2);
+});
+
 
 test('Search by Activity Function', async() => {
    const key = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
@@ -206,82 +238,9 @@ test("show 10 more results success", async () => {
     });
 });
 
-//test('handles error in fetching current user', async () => {
-//  const errorMessage = 'Not logged in';
-//
-//  fetch.mockRejectOnce(new Error(errorMessage));
-//
-//  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-//
-////  render(<Search />, { wrapper: BrowserRouter });
-//  render(
-//         <UserProvider>
-//             <BrowserRouter>
-//               <Search />
-//             </BrowserRouter>
-//           </UserProvider>
-//     );
-//
-//  await waitFor(() => {
-//    expect(consoleSpy).toHaveBeenCalledWith("Error:", expect.objectContaining({ message: errorMessage }));
-//  });
-//
-//  consoleSpy.mockRestore();
-//});
-//
-//test('throw error in fetching current user', async () => {
-//  const errorMessage = 'Not logged in';
-//
-//  fetch.mockResponseOnce(JSON.stringify({ message: 'Error occurred' }), { status: 401 });
-//
-//  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-//
-////  render(<Search />, { wrapper: BrowserRouter });
-//  render(
-//         <UserProvider>
-//             <BrowserRouter>
-//               <Search />
-//             </BrowserRouter>
-//           </UserProvider>
-//     );
-//
-//  await waitFor(() => {
-//    expect(consoleSpy).toHaveBeenCalledWith("Error:", expect.objectContaining({ message: errorMessage }));
-//  });
-//
-//  consoleSpy.mockRestore();
-//});
-//
-//test('throw error in fetching user favorite ', async () => {
-//  fetch.mockResponseOnce(JSON.stringify({ username: 'testUser' }));
-//
-//    // Mock response for the second fetch (fetching user favorites) with an error
-//    fetch.mockRejectOnce(new Error('Failed to fetch user favorites'));
-//
-//    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-//
-////    render(<Search />, { wrapper: BrowserRouter });
-//    render(
-//           <UserProvider>
-//               <BrowserRouter>
-//                 <Search />
-//               </BrowserRouter>
-//             </UserProvider>
-//       );
-//
-//    await waitFor(() => {
-//      expect(consoleSpy).toHaveBeenCalledWith('Failed to fetch user favorites', expect.any(Error));
-//    });
-//
-//    consoleSpy.mockRestore();
-//});
-//
 test('PopUpModal opens when a park name is clicked', async () => {
 
   render(<PopUpModal {...updatedProps} />);
-//
-//   const user = userEvent.setup();
-//   await user.click()
 
   expect(screen.getByTestId('modal')).toBeInTheDocument();
 });
@@ -307,11 +266,8 @@ const initialSearchResponse = {
         }]
   };
 
-  // Set up user event
   const user = userEvent.setup();
 
-  // Render Search component wrapped in BrowserRouter
-//  render(<Search />, { wrapper: BrowserRouter });
   render(
          <UserProvider>
              <BrowserRouter>

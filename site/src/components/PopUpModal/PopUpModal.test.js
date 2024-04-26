@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import PopUpModal from './PopUpModal';
 import Modal from 'react-modal';
+import userEvent from '@testing-library/user-event';
 
 Modal.setAppElement = jest.fn();
 
@@ -260,6 +261,89 @@ test('handles fetch failure', async () => {
 })
 
 
+test('PopUpModal displays and interacts with amenities and activities', async () => {
+  const user = userEvent.setup();
+  const closeModalMock = jest.fn();
+  const handleClickMock = jest.fn();
+  const setUserFavoritesMock = jest.fn();
+  const userFavoritesMock = [];
 
+  const parkMock = {
+    fullName: 'Yosemite National Park',
+    images: [{ url: 'https://example.com/image.jpg', altText: 'Park image' }],
+    addresses: [{ line1: '123 Main St', city: 'Park City', stateCode: 'PC', countryCode: 'USA' }],
+    description: 'A great place to visit',
+    amenities: [{ name: 'Parking' }, { name: 'Restrooms' }],
+    activities: [{ name: 'Hiking' }, { name: 'Camping' }],
+    isFavorite: true
+  };
 
+  render(
+
+        <PopUpModal
+          currentUser="user123"
+          modalIsOpen={true}
+          closeModal={closeModalMock}
+          park={parkMock}
+          handleClick={handleClickMock}
+          setUserFavorites={setUserFavoritesMock}
+          userFavorites={userFavoritesMock}
+        />
+
+  );
+
+  // Check for each amenity by testId and interact with it
+  for (let i = 0; i < parkMock.amenities.length; i++) {
+    const amenity = parkMock.amenities[i];
+    const amenityElement = await screen.findByTestId(`handleClick-${i}`);
+    expect(amenityElement).toHaveTextContent(amenity.name);
+    await user.click(amenityElement);
+    expect(handleClickMock).toHaveBeenCalled();  // Check if handleClick was called
+  }
+
+  // Check closeModal functionality
+  await user.click(screen.getByTestId('closeModal'));
+  expect(closeModalMock).toHaveBeenCalled();
+});
+
+test('PopUpModal uses handleClick effectively', async () => {
+  const user = userEvent.setup();
+  const closeModalMock = jest.fn();
+  const handleClickActiveMock = jest.fn(() => null);
+  const setUserFavoritesMock = jest.fn();
+  const userFavoritesMock = [];
+
+  const parkMock = {
+    fullName: 'Yosemite National Park',
+    images: [{ url: 'https://example.com/image.jpg', altText: 'Park image' }],
+    addresses: [{ line1: '123 Main St', city: 'Park City', stateCode: 'PC', countryCode: 'USA' }],
+    description: 'A great place to visit',
+    amenities: [{ name: 'Parking' }, { name: 'Restrooms' }],
+    activities: [{ name: 'Hiking' }, { name: 'Camping' }],
+    isFavorite: true
+  };
+
+  render(
+    <PopUpModal
+      currentUser="user123"
+      modalIsOpen={true}
+      closeModal={closeModalMock}
+      park={parkMock}
+      handleClick={handleClickActiveMock}
+      setUserFavorites={setUserFavoritesMock}
+      userFavorites={userFavoritesMock}
+    />
+  );
+
+  // Interact with an element that uses handleClick
+  const clickableElement = await screen.findByTestId('handleClick-0'); // Assuming your test IDs are correctly set
+  await user.click(clickableElement);
+
+  // Verify that handleClick was called
+  expect(handleClickActiveMock).toHaveBeenCalled();
+
+  // Also test closeModal to ensure it's covered in scenarios where handleClick is active
+  await user.click(screen.getByTestId('closeModal'));
+    expect(closeModalMock).toHaveBeenCalled();
+});
 

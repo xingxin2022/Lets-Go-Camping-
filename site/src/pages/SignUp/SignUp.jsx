@@ -10,7 +10,7 @@ import styles from "./SignUp.module.css";
 
 function SignUp() {
     return (
-        <div className={styles.signUpPage}>
+        <div className={styles.signUpPage} data-testid="SignUp">
             <Header />
             <BannerImage />
             <div className={styles.cardsContainer}>

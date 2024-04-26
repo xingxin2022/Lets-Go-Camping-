@@ -11,7 +11,7 @@ function PopUpModal({ currentUser, modalIsOpen, closeModal, park, handleClick, s
         contentLabel="Example Modal"
       >
         <div data-testid="modal" className="content">
-        <h2 onClick={closeModal}>{park?.fullName}  {park.isFavorite ? " 🌟️ " : ""}</h2>
+        <h2 data-testid="closeModal" onClick={closeModal}>{park?.fullName}  {park.isFavorite ? " 🌟️ " : ""}</h2>
 
         <img src={park.images && park.images[0] ? park.images[0].url : ""}
              alt={ park.images && park.images[0] ? park.images[0].altText : "Park image"}/>

@@ -5,8 +5,8 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
   const [favoriteConfirmation, setFavoriteConfirmation] = useState("");
   const [showAddToFavorites, setShowAddToFavorites] = useState(false);
   return (
-    <div data-testid={testId} className="park-container" onMouseEnter={() => setShowAddToFavorites(true)} onMouseLeave={() => setShowAddToFavorites(false)}>
-          <h3 className="park-name" onClick = {()=>onSetShowPark(park)}>
+    <div  id="park-card" data-testid={testId} className="park-container" onMouseEnter={() => setShowAddToFavorites(true)} onMouseLeave={() => setShowAddToFavorites(false)}>
+          <h3 id="park-name" className="park-name" onClick = {()=>onSetShowPark(park)}>
           {park.fullName}  {park.isFavorite ? " 🌟️ " : ""}
           </h3>
           <img
@@ -20,6 +20,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                                   : "Address not available"}</p>
 
           {showAddToFavorites && (<button
+                  data-testid="addToFav"
             onClick={() => {
                 fetch("/api/search/add-favorite", {
                     method: "POST",
@@ -56,7 +57,7 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
              +
           </button>
           )}
-          {favoriteConfirmation && <div className="confirmation-message">{favoriteConfirmation}</div>}
+          {favoriteConfirmation && <div  id="confirmation-message"  className="confirmation-message">{favoriteConfirmation}</div>}
           </div>
   );
 }
