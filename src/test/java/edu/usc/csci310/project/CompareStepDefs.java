@@ -209,8 +209,8 @@ public class CompareStepDefs {
     }
 
     //DONE
-    @Then("I should see {string}")
-    public void iShouldSee(String message) {
+    @Then("I should see {string} for compare")
+    public void iShouldSeeCOMPARE(String message) {
 //        assertTrue(driver.getPageSource().contains(message),
 //                "Page does not contain expected text: " + message);
         assertTrue(driver.getPageSource().contains("Camping"));
@@ -228,7 +228,7 @@ public class CompareStepDefs {
     @Then("I should see a list with parks from both lists")
     public void iShouldSeeAListWithParksFromBothLists() {
 //        assertTrue(driver.getPageSource().contains("Grand Teton National Park"),
-//                "Page does not contain expected text: " + "Grand Teton National Park");
+//                "Page does not contain expected text: " +x "Grand Teton National Park");
 //        assertTrue(driver.getPageSource().contains("Yellowstone National Park"),
 //                "Page does not contain expected text: " + "Yellowstone National Park");
         assertTrue(driver.getPageSource().contains("Camping"));
@@ -410,45 +410,45 @@ public class CompareStepDefs {
     }
 
     //DONE
-    @When("I click the logout button")
-    public void iClickTheLogoutButton() throws InterruptedException {
+    @When("I click the logout button for compare")
+    public void iClickTheLogoutButtonCOMPARE() throws InterruptedException {
         //log out right now
         driver.findElement(By.xpath("/html/body/div/div/div/header[1]/nav/ul/li[5]")).click();
         Thread.sleep(1000);
     }
 
     //DONE
-    @And("I should be logged out")
-    public void iShouldBeLoggedOut() {
+    @And("I should be logged out for compare")
+    public void iShouldBeLoggedOutCOMPARE() {
 //        assertFalse(driver.getPageSource().contains("Home"),
 //                "Page still contains home - not signed out.");
     }
 
     //DONE
-    @Then("I should be taken to the login page")
-    public void iShouldBeTakenToTheLoginPage() {
+    @Then("I should be taken to the login page for compare")
+    public void iShouldBeTakenToTheLoginPageCOMPARE() {
 //        assertTrue(driver.getPageSource().contains("Log in"),
 //                "Page does not contain expected text: " + "Log in");
         assertTrue(driver.getPageSource().contains("Camping"));
     }
 
     //DONE
-    @Then("I should be on the {string} page")
-    public void iShouldBeOnThePage(String arg0) {
+    @Then("I should be on the {string} page for compare")
+    public void iShouldBeOnThePageCOMPARE(String arg0) {
 //        assertTrue(driver.getPageSource().contains(arg0),
 //                "Page does not contain expected text: " + arg0);
         assertTrue(driver.getPageSource().contains("Camping"));
     }
 
     //DONE
-    @And("I click on {string}")
-    public void iClickOn(String arg0) {
+    @And("I click on {string} for compare")
+    public void iClickOnCOMAPRE(String arg0) {
 //        driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]")).click();
     }
 
     //DONE
-    @Given("I am on the compare list page")
-    public void iAmOnTheCompareListPage() throws InterruptedException {
+    @Given("I am on the compare list page for compare")
+    public void iAmOnTheCompareListPageCOMPARE() throws InterruptedException {
 
         driver.get("https://localhost:8080");
 
@@ -475,8 +475,8 @@ public class CompareStepDefs {
     }
 
     //DONE
-    @Given("I am on the search results page")
-    public void iAmOnTheSearchResultsPage() throws InterruptedException {
+    @Given("I am on the search results page for compare")
+    public void iAmOnTheSearchResultsPageCOMPARE() throws InterruptedException {
 
         driver.get("https://localhost:8080");
 
@@ -522,8 +522,8 @@ public class CompareStepDefs {
     }
 
     //DONE
-    @Then("I should see the details for {string}")
-    public void iShouldSeeTheDetailsFor(String arg0) {
+    @Then("I should see the details for {string} for compare")
+    public void iShouldSeeTheDetailsForCOMPARE(String arg0) {
 //        assertTrue(driver.getPageSource().contains(arg0),
 //                "Page does not contain the details for: " + arg0);
         assertTrue(driver.getPageSource().contains("Camping"));
@@ -554,8 +554,8 @@ public class CompareStepDefs {
     }
 
     //DONE
-    @And("I hover over the {string}")
-    public void iHoverOverThe(String arg0) throws InterruptedException {
+    @And("I hover over the {string} for compare")
+    public void iHoverOverTheCOMPARE(String arg0) throws InterruptedException {
 //        Thread.sleep(1000);
 //        WebElement toHover = driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]"));
 //
@@ -586,14 +586,14 @@ public class CompareStepDefs {
         Thread.sleep(5000);
     }
 
-    @When("I click on the favorite list button in the header")
-    public void iClickOnTheFavoriteListButtonInTheHeader() {
+    @When("I click on the favorite list button in the header for compare")
+    public void iClickOnTheFavoriteListButtonInTheHeaderCOMPARE() {
         String xpath = "//nav//ul//li[contains(text(), '" + "FavoriteList" + "')]";
         driver.findElement(By.xpath(xpath)).click();
     }
 
-    @When("I click on the search button in the header")
-    public void iClickOnTheSearchButtonInTheHeader() {
+    @When("I click on the search button in the header for compare")
+    public void iClickOnTheSearchButtonInTheHeaderCOMPARE() {
         String xpath = "//nav//ul//li[contains(text(), '" + "Search" + "')]";
         driver.findElement(By.xpath(xpath)).click();
     }
