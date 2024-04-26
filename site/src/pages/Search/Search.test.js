@@ -28,10 +28,8 @@ const updatedProps = {
   closeModal: jest.fn(),
   park: {
     fullName: 'Bryce Canyon National Park',
-    // Add other necessary mock park properties here
   },
   handleClick: jest.fn(),
-  // Ensure all required props are provided
 };
 
 const mockHandleClick = jest.fn();
