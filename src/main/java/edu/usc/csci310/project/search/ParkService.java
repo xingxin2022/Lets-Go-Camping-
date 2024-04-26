@@ -26,7 +26,7 @@ import org.json.JSONObject;
 
 @Service
 public class ParkService {
-    private final String API_KEY = "zAU4RYdbLdkC6aM98RBnYuu2mEP3THiadaGz3LTe";
+    private final String API_KEY = "hhlBidd0hzbSoGJs3O9cZrI5Jrf37KVLd7Ime4A3";
     private final String BASE_URL = "https://developer.nps.gov/api/v1";
 
     @Autowired
