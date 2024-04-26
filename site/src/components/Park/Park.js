@@ -19,7 +19,8 @@ function Park({ park, onSetShowPark, currentUser, setUserFavorites, userFavorite
                                   ? park.addresses[0].line1 + ', '+ park.addresses[0].city + ', '+park.addresses[0].stateCode+', ' + park.addresses[0].countryCode
                                   : "Address not available"}</p>
 
-          {showAddToFavorites && (<button id="favorite-id"
+          {showAddToFavorites && (<button
+                  data-testid="addToFav"
             onClick={() => {
                 fetch("/api/search/add-favorite", {
                     method: "POST",

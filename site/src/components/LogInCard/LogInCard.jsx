@@ -94,7 +94,7 @@ function LogInCard() {
             <div>
                 Don't have an account?
                 <span onClick={() => navigate('/signup')}
-                                             style={{color: '#BF754B', cursor: 'pointer'}}> Sign up here</span>
+                      style={{color: '#BF754B', cursor: 'pointer'}}> Sign up here</span>
             </div>
         </div>
     );

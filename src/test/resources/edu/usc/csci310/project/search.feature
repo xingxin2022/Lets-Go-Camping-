@@ -16,14 +16,14 @@ Feature: Search for a park to visit based on various attributes
     When I enter "Yellowstone" into search box
     And choose "park name" from the search criteria
     And click the search button
-    Then I should see a list of parks that match the "park name" search criteria of "Yellowstone"
+    Then I should see a list of parks that match "Yellowstone"
 
   Scenario: Search by state
     Given I am on the search page
     When I enter "California" into search box
     And choose "state" from the search criteria
     And click the search button
-    Then I should see a list of parks that match the "state" search criteria of "California"
+    Then I should see a list of parks that match "California"
 
   Scenario: Search by activity
     Given I am on the search page
@@ -43,7 +43,7 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search page
     When I enter "Yosemite" into search box
     And click the search button
-    Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
+    Then I should see a list of parks that match "Yosemite"
 
   Scenario: Load more results button is functional
     Given I am on search page
@@ -70,7 +70,7 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search page
     When I enter "Yosemite" into search box
     And press the enter key
-    Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
+    Then I should see a list of parks that match "Yosemite"
 
   Scenario: hover over park shows plus button
     Given I am on the search results page
@@ -105,4 +105,4 @@ Feature: Search for a park to visit based on various attributes
     Given I am on the search page
     When I enter "Yosemite" into search box
     And click the search button
-    Then I should see a list of parks that match the "park name" search criteria of "Yosemite"
+    Then I should see a list of parks that match "Yosemite"

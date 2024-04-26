@@ -171,46 +171,6 @@ class ParkServiceTest {
 
         assertTrue(result.isEmpty(), "Result should be empty when no data is returned from the API.");
     }
-//
-//    @Test
-//    void fetchParkDetailsBatch_JsonProcessingException() throws Exception {
-//        List<String> parkCodes = Collections.singletonList("SNP");
-//        String jsonResponse = "{\"data\":[{\"id\":\"1\",\"fullName\":\"Sample National Park\",\"parkCode\":\"SNP\",\"description\":\"A beautiful park.\"}]}";
-//
-//        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
-//                .thenReturn(new ResponseEntity<>(jsonResponse, HttpStatus.OK));
-//
-//        // Mock ObjectMapper to throw JsonProcessingException when readValue is called
-//        when(objectMapper.readValue(eq(jsonResponse), eq(ParkSearchResponse.class)))
-//                .thenThrow(JsonMappingException.fromUnexpectedIOE(new IOException("Simulated error")));
-//
-//        // Execute the method and assert that a RuntimeException is thrown
-//        assertThrows(RuntimeException.class, () -> {
-//            parkService.fetchParkDetailsBatch(0, parkCodes);
-//        });
-//
-//        // Optionally verify that objectMapper.readValue was called if needed
-//        verify(objectMapper).readValue(eq(jsonResponse), eq(ParkSearchResponse.class));
-//    }
-//
-//    @Test
-//    void fetchParkDetailsBatch_IOException() throws Exception{
-//        // Given
-//        List<String> parkCodes = Collections.singletonList("SNP");
-//        String parkCodesJson = "{\"data\":[]}";
-//        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
-//                .thenReturn(new ResponseEntity<>(parkCodesJson, HttpStatus.OK));
-//
-//        // Mock ObjectMapper to throw JsonProcessingException
-//        when(objectMapper.readValue(anyString(), any(Class.class)))
-//                .thenThrow(new IOException( "Simulated JSON error"));
-//
-//        // When & Then
-//        assertThrows(RuntimeException.class, () -> {
-//            parkService.fetchParkDetailsBatch(0, parkCodes);
-//        });
-//    }
-
 
     @Test
     void fetchActivityId() throws JSONException {
@@ -828,22 +788,22 @@ class ParkServiceTest {
     }
 
 
-@Test
-void searchParks_JsonProcessingException() throws Exception{
-    // Given
-    String parkCodesJson = "{\"data\":[]}";
-    when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
-            .thenReturn(new ResponseEntity<>(parkCodesJson, HttpStatus.OK));
+    @Test
+    void searchParks_JsonProcessingException() throws Exception{
+        // Given
+        String parkCodesJson = "{\"data\":[]}";
+        when(restTemplate.postForEntity(anyString(), any(), eq(String.class)))
+                .thenReturn(new ResponseEntity<>(parkCodesJson, HttpStatus.OK));
 
-    // Mock ObjectMapper to throw JsonProcessingException
-    when(objectMapper.readValue(anyString(), any(Class.class)))
-            .thenThrow(new JsonMappingException(null, "Simulated JSON error"));
+        // Mock ObjectMapper to throw JsonProcessingException
+        when(objectMapper.readValue(anyString(), any(Class.class)))
+                .thenThrow(new JsonMappingException(null, "Simulated JSON error"));
 
-    // When & Then
-    assertThrows(RuntimeException.class, () -> {
-        parkService.searchParks("query", "parkname", 0);
-    });
-}
+        // When & Then
+        assertThrows(RuntimeException.class, () -> {
+            parkService.searchParks("query", "parkname", 0);
+        });
+    }
 
 //    @Test
 //    void fetchAmenitiesForParks_ThrowsRuntimeException_WhenJsonProcessingExceptionOccurs() throws Exception {
@@ -918,7 +878,7 @@ void searchParks_JsonProcessingException() throws Exception{
         assertTrue(exception.getCause() instanceof JsonMappingException);
     }
 
-//    @Test
+    //    @Test
 //    void fetchAmenitiesForParks_RuntimeException() throws Exception {
 //        List<String> parkCodes = Collections.singletonList("PARK123");
 //        String jsonResponse = "{\"data\":[]}";
