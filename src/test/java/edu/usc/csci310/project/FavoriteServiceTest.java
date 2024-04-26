@@ -75,15 +75,15 @@ public class FavoriteServiceTest {
 
         // Verify the prepared statements are set correctly for the swap
         InOrder inOrder = inOrder(preparedStatement);
-        inOrder.verify(preparedStatement).setString(1, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(1, username);
         inOrder.verify(preparedStatement).setString(2, parkCode);
-        inOrder.verify(preparedStatement).setString(1, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(1, username);
         inOrder.verify(preparedStatement).setInt(2, currentOrder - 1); // Move up
         inOrder.verify(preparedStatement).setInt(1, currentOrder - 1);
-        inOrder.verify(preparedStatement).setString(2, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(2, username);
         inOrder.verify(preparedStatement).setString(3, parkCode);
         inOrder.verify(preparedStatement).setInt(1, currentOrder);
-        inOrder.verify(preparedStatement).setString(2, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(2, username);
         inOrder.verify(preparedStatement).setString(3, swapParkCode);
 
         // Assertions to ensure all interactions are accounted for
@@ -117,12 +117,12 @@ public class FavoriteServiceTest {
 
         // Verify the prepared statements are set correctly for the swap
         InOrder inOrder = inOrder(preparedStatement);
-        inOrder.verify(preparedStatement).setString(1, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(1, username);
         inOrder.verify(preparedStatement).setString(2, parkCode);
-        inOrder.verify(preparedStatement).setString(1, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(1, username);
         inOrder.verify(preparedStatement).setInt(2, currentOrder + 1); // Move up
         inOrder.verify(preparedStatement).setInt(1, currentOrder + 1);
-        inOrder.verify(preparedStatement).setString(2, Hash.hash(username));
+        inOrder.verify(preparedStatement).setString(2, username);
         inOrder.verify(preparedStatement).setString(3, parkCode);
 
         // Assertions to ensure all interactions are accounted for
@@ -219,7 +219,7 @@ public class FavoriteServiceTest {
         favoriteServiceSpy.updateFavoriteListPrivacy("username", true);
 
         verify(preparedStatement).setBoolean(1, true);
-        verify(preparedStatement).setString(2, Hash.hash("username"));
+        verify(preparedStatement).setString(2, "username");
         verify(preparedStatement).executeUpdate();
     }
 
@@ -282,7 +282,7 @@ public class FavoriteServiceTest {
 
         favoriteServiceSpy.deleteAll("username");
 
-        verify(preparedStatement).setString(1, Hash.hash("username"));
+        verify(preparedStatement).setString(1, "username");
         verify(preparedStatement).executeUpdate();
     }
 

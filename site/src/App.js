@@ -6,7 +6,7 @@ import SignUp from "./pages/SignUp/SignUp";
 import Search from "./pages/Search/Search"
 import CompareList from "./pages/CompareList/CompareList";
 import FavoriteList from "./pages/FavoriteList/FavoriteList";
-
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute"
 
 function App(){
     return (
@@ -16,8 +16,9 @@ function App(){
                 <Route path="*" element={<Navigate to="/" replace />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/search" element={<Search />} />
-                <Route path="/favorite" element={<FavoriteList />} />
                 <Route path="/compare" element={<CompareList />} />
+                <Route path="/favorite" element={<FavoriteList />} />
+
             </Routes>
         </div>
     )
