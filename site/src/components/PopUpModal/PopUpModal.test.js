@@ -57,16 +57,6 @@ test('renders the modal with all information', async () => {
       expect(screen.getByText(new RegExp(parkMock.entranceFees[0].cost, 'i'))).toBeInTheDocument();
       expect(screen.getByText(new RegExp(parkMock.description, 'i'))).toBeInTheDocument();
 
-    // Assertions for amenities and activities
-//    parkMock.amenities.forEach((amenity) => {
-//      expect(screen.getByText(amenity.name)).toBeInTheDocument();
-//      expect(screen.getByText(/,/i).toBeInTheDocument();
-//    });
-//    parkMock.activities.forEach((activity) => {
-//      expect(screen.getByText(activity.name)).toBeInTheDocument();
-//      expect(screen.getByText(/,/i).toBeInTheDocument();
-//    });
-
   if (parkMock.amenities && parkMock.amenities.length > 0) {
     const amenitiesContainer = screen.getByText(/Amenities:/i).nextSibling;
     expect(amenitiesContainer).toHaveTextContent(
