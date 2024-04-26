@@ -41,19 +41,19 @@ Feature: Login page with create account and login.
     When I click the button to navigate to the login page
     Then I should be sent back to the login page
 
-#  Scenario: confirm cancel action when creating account
-#    Given I am on the login page
-#    When I click the cancel button
-#    Then I should see a confirmation dialog
-#    And I click the confirm button
-#    Then I should be on the home page
-#
-#  Scenario: cancel the cancel action when creating account
-#    Given I am on the login page
-#    When I click the cancel button
-#    Then I should see a confirmation dialog
-#    And I click the cancel button
-#    Then I should still be on the create account page
+  Scenario: confirm cancel action when creating account
+    Given I am on the signup page
+    When I click the cancel button
+    Then I should see a confirmation dialog
+    And I click the confirm button on the dialog
+    Then I should be sent back to the login page
+
+  Scenario: cancel the cancel action when creating account
+    Given I am on the signup page
+    When I click the cancel button
+    Then I should see a confirmation dialog
+    And I click the cancel button on the dialog
+    Then I should still be on the signup page
 
   Scenario: successful login
     Given I am on the login page

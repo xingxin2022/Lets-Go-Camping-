@@ -1,14 +1,18 @@
 package edu.usc.csci310.project;
 
 import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.http.HttpEntity;
@@ -24,12 +28,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LoginStepdefs {
-    private final WebDriver driver = new ChromeDriver();
-    private final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+    private static WebDriver driver;
+    private static WebDriverWait wait;
+
+    @Before
+    public void setUp() {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--ignore--certificate-errors");
+        options.addArguments("--ignore--ssl-errors");
+        options.setAcceptInsecureCerts(true);
+        driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+    }
 
     @Given("I am on the create account page")
     public void iAmOnTheCreateAccountPage() {
-        driver.get("http://localhost:8080/signup");
+        driver.get("https://localhost:8080/signup");
     }
 
     @When("I enter {string} into signup username field")
@@ -52,7 +66,7 @@ public class LoginStepdefs {
 
     @And("I click the signup button")
     public void iClickTheSignupButton() {
-        WebElement signupButton = driver.findElement(By.tagName("button"));
+        WebElement signupButton = driver.findElement(By.xpath("//button[contains(text(), 'Sign Up')]"));
         signupButton.click();
     }
 
@@ -87,7 +101,7 @@ public class LoginStepdefs {
 
     @Given("I am on the login page")
     public void iAmOnTheLoginPage() {
-        driver.get("http://localhost:8080/login");
+        driver.get("https://localhost:8080/login");
     }
 
     @And("I click the create account button")
@@ -111,7 +125,7 @@ public class LoginStepdefs {
     @Then("I should be sent back to the login page")
     public void iShouldBeSentBackToTheLoginPage() {
         wait.until(ExpectedConditions.urlContains("localhost:8080"));
-        assertTrue(driver.getCurrentUrl().equals("http://localhost:8080/"));
+        assertTrue(driver.getCurrentUrl().equals("https://localhost:8080/"));
     }
 
     @And("I have an account with the username {string} and password {string}")
@@ -168,13 +182,47 @@ public class LoginStepdefs {
         assertEquals(expectedMessage, actualErrorMessage);
     }
 
+    @Given("I am on the signup page")
+    public void iAmOnTheSignupPage() {
+        driver.get("https://localhost:8080/signup");
+    }
+
+    @And("I click the cancel button")
+    public void iClickTheCancelButton() {
+        WebElement cancelButton = driver.findElement(By.xpath("//button[contains(text(), 'Cancel')]"));
+        cancelButton.click();
+    }
 
 
+    @Then("I should see a confirmation dialog")
+    public void iShouldSeeAConfirmationDialog() {
+        // wait until the dialog is displayed
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("cancelCancel")));
+    }
+
+    @And("I click the confirm button on the dialog")
+    public void iClickTheCancelButtonOnTheDialog() {
+        WebElement cancelButton = driver.findElement(By.id("confirmCancel"));
+        cancelButton.click();
+    }
+
+    @Then("I should still be on the signup page")
+    public void iShouldStillBeOnTheSignupPage() {
+        wait.until(ExpectedConditions.urlContains("/signup"));
+        assertTrue(driver.getCurrentUrl().contains("/signup"));
+    }
+
+    @And("I click the cancel button on the dialog")
+    public void iClickTheConfirmButtonOnTheDialog() {
+        WebElement cancelButton = driver.findElement(By.id("cancelCancel"));
+        cancelButton.click();
+    }
 
     @After
     public void tearDown() {
         if (driver != null) {
             driver.quit();
+            driver = null;
         }
     }
 
