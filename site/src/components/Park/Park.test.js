@@ -22,11 +22,6 @@ const parkWithFavorite = {
   isFavorite: true,
 };
 
-const parkWithoutFavorite = {
-  ...parkWithFavorite,
-  isFavorite: false,
-};
-
 const parkWithoutImageAndAddress = {
   fullName: 'Yosemite National Park',
   parkCode: 'yose',
