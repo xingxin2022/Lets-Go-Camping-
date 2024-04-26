@@ -8,15 +8,15 @@ Feature: Compare favorite park list with friends
 
   Scenario: Comparing with a friend with public list CANT YET
     Given I have a list with "Adams National Historical Park" and "Abraham Lincoln Birthplace National Historical Park"
-    And my friend has a "public" list [CANT DO YET!!]
+    And my friend has a public list
     When I compare my list with my friend's list
     Then I should see a list with parks from both lists
 
   Scenario: Comparing with a friend with private list CANT YET
     Given I have a list with "Adams National Historical Park" and "Abraham Lincoln Birthplace National Historical Park"
-    And my friend has a "private" list [CANT DO YET!!]
+    And my friend has a private list
     When I compare my list with my friend's list
-    Then I should see "NEED TO SEE WHAT THE MESSAGE IS"
+    Then I should see "comparing failed"
 
   Scenario: Comparing with nonexistent friend DONE
     Given I have a list with "Adams National Historical Park" and "Abraham Lincoln Birthplace National Historical Park"

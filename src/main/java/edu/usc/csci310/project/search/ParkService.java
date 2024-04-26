@@ -494,6 +494,7 @@ public class ParkService {
 
     @PostConstruct
     public void initializeParkDatabase() {
+        String dropTableSql = "DROP TABLE IF EXISTS favorites";
         String createFavoritesTableSql = "CREATE TABLE IF NOT EXISTS favorites (" +
                 "username TEXT NOT NULL, " +
                 "parkCode TEXT NOT NULL, " +
@@ -504,6 +505,9 @@ public class ParkService {
 
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
+            // Drop the existing table
+            stmt.execute(dropTableSql);
+            // Recreate the table
             stmt.execute(createFavoritesTableSql);
         } catch (SQLException e) {
             System.out.println("Error initializing database: " + e.getMessage());
