@@ -10,6 +10,7 @@ import App from "../../App";
 import LogIn from "./LogIn";
 import LogInCard from "../../components/LogInCard/LogInCard";
 
+
 global.fetch = jest.fn();
 
 // Before your test
@@ -35,6 +36,8 @@ beforeEach(() => {
 });
 
 //-------------------------
+
+
 
 test("Make sure App is rendered", () => {
     render(
