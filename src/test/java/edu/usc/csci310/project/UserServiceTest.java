@@ -156,7 +156,7 @@ public class UserServiceTest {
 
         userService.initializeDatabase();
 
-        verify(statement, times(1)).execute(anyString());
+        verify(statement, times(2)).execute(anyString());
     }
 
 
@@ -224,7 +224,7 @@ public class UserServiceTest {
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString("parkName")).thenReturn("Yellowstone");
         when(resultSet.getString("parkCode")).thenReturn("YNP");
-        when(resultSet.getBoolean("isPrivate")).thenReturn(false);
+        when(resultSet.getBoolean("isPublic")).thenReturn(false);
 
         List<ParkInfo> parks = userService.getFavoriteParksByUsername("user1");
         assertNotNull(parks);
@@ -302,7 +302,7 @@ public class UserServiceTest {
         when(resultSet.next()).thenReturn(true, true, false, true, true, false); // Results iteration
         when(resultSet.getString("parkName")).thenReturn("Park1", "Park2", "Park1", "Park3");
         when(resultSet.getString("parkCode")).thenReturn("P1", "P2", "P1", "P3");
-        when(resultSet.getBoolean("isPrivate")).thenReturn(false, false, false, false);
+        when(resultSet.getBoolean("isPublic")).thenReturn(true, true, true, true);
 
         UserService userService = new UserService(dataSource);
 
@@ -366,7 +366,7 @@ public class UserServiceTest {
         when(resultSet.next()).thenReturn(true, true, true, false); // Multiple parks, last call returns false
         when(resultSet.getString("parkName")).thenReturn("Yellowstone");
         when(resultSet.getString("parkCode")).thenReturn("YP001");
-        when(resultSet.getBoolean("isPrivate")).thenReturn(false, true); // Second park is private
+        when(resultSet.getBoolean("isPublic")).thenReturn(false, true); // Second park is private
 
         UserService userService = new UserService(dataSource);
 

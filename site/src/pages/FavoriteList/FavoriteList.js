@@ -18,10 +18,10 @@ function ConfirmModal({ isOpen, onClose, onConfirm, title, children }) {
             </Modal.Header>
             <Modal.Body>{children}</Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose}>
+                <Button variant="secondary" id="cancel" onClick={onClose}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={onConfirm}>
+                <Button variant="primary" id="confirm" onClick={onConfirm}>
                     Confirm
                 </Button>
             </Modal.Footer>
@@ -35,15 +35,15 @@ function Park({ park, onMoveUp, onMoveDown, onDelete, onShowPark }) {
     const [showDelete, setShowDelete] = useState(false);
 //    console.log(park);
     return (
-        <div className="park-box" onMouseEnter={() => setShowDelete(true)} onMouseLeave={() => setShowDelete(false)}>
+        <div className="park-box" id="park-box" onMouseEnter={() => setShowDelete(true)} onMouseLeave={() => setShowDelete(false)}>
             <h3 onClick={() => onShowPark(park)}>{park.fullName}</h3>
             {park.images && park.images[0] && (
                 <img src={park.images[0].url} alt={park.fullName} style={{ width: "50%", height: "auto" }} />
             )}
             <div className="button-group">
-                {showDelete && <Button variant="primary" onClick={() => onMoveUp()}>Move Up ⬆️</Button>}
-                {showDelete && <Button variant="primary" onClick={() => onMoveDown()}>Move Down ⬇️</Button>}
-                {showDelete && <Button variant="danger" onClick={() => onDelete()}>Remove ❌</Button>}
+                {showDelete && <Button variant="primary" id="moveup" onClick={() => onMoveUp()}>Move Up ⬆️</Button>}
+                {showDelete && <Button variant="primary" id="movedown" onClick={() => onMoveDown()}>Move Down ⬇️</Button>}
+                {showDelete && <Button variant="danger" id="remove" onClick={() => onDelete()}>Remove ❌</Button>}
             </div>
         </div>
 
