@@ -14,7 +14,6 @@ function Search() {
     const [searchType, setSearchType] = useState("parkname");
     const [allParkCodes, setAllParkCodes] = useState([]);
     const [currentParkIndex, setCurrentParkIndex] = useState(0);
-
     const { currentUser, setCurrentUser } = useUser();
     const [userFavorites, setUserFavorites] = useState([]);
     const [modalIsOpen, setIsOpen] = useState(false);
