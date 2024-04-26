@@ -96,16 +96,22 @@ function SignUpCard() {
                         />
                     </div>
                 </div>
-                <button type="submit">Sign Up</button>
-                <button type="button" onClick={handleCancel} className={styles.cancelButton}>Cancel</button>
+                <button type="submit" id="signupButton">Sign Up</button>
+                <button type="button" id="cancelSignUp" onClick={handleCancel} className="cancelButton"
+                        data-testid="cancel-sign-up">Cancel
+                </button>
+
 
                 <br></br>
                 <br></br>
 
                 {showCancelConfirm && (
                     <>
-                        <button onClick={confirmCancel} className={styles.confirmButton}>Confirm Cancel</button>
-                        <button onClick={() => setShowCancelConfirm(false)} className={styles.denyButton}>Keep Signing
+                        <button onClick={confirmCancel} id="confirmCancel" className={styles.confirmButton}>Confirm
+                            Cancel
+                        </button>
+                        <button onClick={() => setShowCancelConfirm(false)} id="cancelCancel"
+                                className={styles.denyButton}>Keep Signing
                             Up
                         </button>
                     </>
@@ -119,7 +125,7 @@ function SignUpCard() {
                 )}
             </form>
 
-            <br />
+            <br/>
 
             <div>
                 Have an account already?
