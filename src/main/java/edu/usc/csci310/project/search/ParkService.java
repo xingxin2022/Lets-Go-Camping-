@@ -2,6 +2,7 @@ package edu.usc.csci310.project.search;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.usc.csci310.project.Hash;
 import jakarta.annotation.PostConstruct;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -462,7 +463,6 @@ public class ParkService {
             if (connection != null) {
                 try { connection.close(); } catch (SQLException e) { /* log or handle exception */ }
             }
-
         }
         return favoriteresponse;
     }
@@ -477,7 +477,7 @@ public class ParkService {
         ) {
 
             // Check if user does not have favorite park
-            getUserFavoriteStmt.setString(1, userName);
+            getUserFavoriteStmt.setString(1, Hash.hash(userName));
             ResultSet rs = getUserFavoriteStmt.executeQuery();
             while (rs.next()) {
                 String parkCode = rs.getString("parkCode");

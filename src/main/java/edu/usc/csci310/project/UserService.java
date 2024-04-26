@@ -39,9 +39,7 @@ public class UserService {
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
-
-
-            checkUserStmt.setString(1, user.getUsername());
+            checkUserStmt.setString(1, Hash.hash(user.getUsername()));
             ResultSet rs = checkUserStmt.executeQuery();
             if (rs.next() && rs.getInt(1) > 0) {
                 throw new UserAlreadyExistsException("Username already exists");
@@ -54,8 +52,8 @@ public class UserService {
 
             // Insert user
             try (PreparedStatement insertUserStmt = connection.prepareStatement(insertUserSql)) {
-                insertUserStmt.setString(1, user.getUsername());
-                insertUserStmt.setString(2, user.getPassword());
+                insertUserStmt.setString(1, Hash.hash(user.getUsername()));
+                insertUserStmt.setString(2, Hash.hash(user.getPassword()));
                 insertUserStmt.executeUpdate();
             }
             return new RegisterResponse("User registered successfully");
@@ -92,12 +90,12 @@ public class UserService {
 
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
-            checkUserStmt.setString(1, username);
+            PreparedStatement checkUserStmt = connection.prepareStatement(checkUserSql)) {
+            checkUserStmt.setString(1, Hash.hash(username));
             ResultSet rs = checkUserStmt.executeQuery();
             if (rs.next()) {
                 String storedPassword = rs.getString("password");
-                if (!storedPassword.equals(password)) {
+                if (!storedPassword.equals(Hash.hash(password))) {
                     throw new LoginFailedException("Invalid username or password");
                 }
                 return new LoginResponse("Login Successful");
