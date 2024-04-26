@@ -120,7 +120,7 @@ public class FavoriteService {
             Connection connection = dataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setBoolean(1, isPublic);
-            stmt.setString(2, Hash.hash(username));
+            stmt.setString(2, username);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Failed to update privacy setting: " + e.getMessage(), e);
@@ -139,7 +139,7 @@ public class FavoriteService {
             // Find the number of parks in the user's list
             String countSql = "SELECT COUNT(*) FROM favorites WHERE username = ?";
             stmt = connection.prepareStatement(countSql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             rs = stmt.executeQuery();
             int count = rs.getInt(1);
             rs.close();
@@ -148,7 +148,7 @@ public class FavoriteService {
             // Find the park's order
             String findParkOrderSql = "SELECT parkOrder FROM favorites WHERE username = ? AND parkCode = ?";
             stmt = connection.prepareStatement(findParkOrderSql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.setString(2, parkCode);
             rs = stmt.executeQuery();
             int parkOrder = rs.getInt("parkOrder");
@@ -163,7 +163,7 @@ public class FavoriteService {
             int swapOrder = moveUp ? parkOrder - 1 : parkOrder + 1;
             String swapOrderSql = "SELECT parkCode FROM favorites WHERE username = ? AND parkOrder = ?";
             stmt = connection.prepareStatement(swapOrderSql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.setInt(2, swapOrder);
             rs = stmt.executeQuery();
             String swapParkCode = rs.getString("parkCode");
@@ -175,14 +175,14 @@ public class FavoriteService {
             stmt = connection.prepareStatement(updateOrderSql);
             // Update the moving park
             stmt.setInt(1, swapOrder);
-            stmt.setString(2, Hash.hash(username));
+            stmt.setString(2, username);
             stmt.setString(3, parkCode);
             stmt.executeUpdate();
             stmt.close();
             // Update the swap park
             stmt = connection.prepareStatement(updateOrderSql);
             stmt.setInt(1, parkOrder);
-            stmt.setString(2, Hash.hash(username));
+            stmt.setString(2, username);
             stmt.setString(3, swapParkCode);
             stmt.executeUpdate();
 
@@ -218,7 +218,7 @@ public class FavoriteService {
         try {
             Connection connection = dataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 Park park = new Park();
@@ -245,7 +245,7 @@ public class FavoriteService {
             connection = dataSource.getConnection();
             stmt = connection.prepareStatement(getOrderSql);
             connection.setAutoCommit(false);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.setString(2, parkCode);
             int parkOrder = 0;
             rs = stmt.executeQuery();
@@ -255,7 +255,7 @@ public class FavoriteService {
             // Delete the specified park
             String deleteSql = "DELETE FROM favorites WHERE username = ? AND parkCode = ?";
             stmt = connection.prepareStatement(deleteSql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.setString(2, parkCode);
             stmt.executeUpdate();
             stmt.close();
@@ -263,7 +263,7 @@ public class FavoriteService {
             // Decrement the parkOrder for all parks that have a higher order
             String updateOrderSql = "UPDATE favorites SET parkOrder = parkOrder - 1 WHERE username = ? AND parkOrder > ?";
             stmt = connection.prepareStatement(updateOrderSql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.setInt(2, parkOrder);
             stmt.executeUpdate();
             stmt.close();
@@ -285,7 +285,7 @@ public class FavoriteService {
         try {
             Connection connection = dataSource.getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, Hash.hash(username));
+            stmt.setString(1, username);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException("Failed to delete all parks: " + e.getMessage(), e);
