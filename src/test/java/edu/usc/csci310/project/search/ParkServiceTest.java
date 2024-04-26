@@ -1302,7 +1302,7 @@ class ParkServiceTest {
 
         parkService.initializeParkDatabase();
 
-        verify(statement, times(1)).execute(anyString());
+        verify(statement, times(2)).execute(anyString());
     }
 
     @Test

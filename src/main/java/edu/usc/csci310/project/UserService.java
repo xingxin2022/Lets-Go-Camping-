@@ -108,8 +108,10 @@ public class UserService {
             throw new RuntimeException("Error when trying to login: " + sqle.getMessage());
         }
     }
+
     @PostConstruct
     public void initializeDatabase() {
+        String dropTableSql = "DROP TABLE IF EXISTS users";
         String createTableSql = "CREATE TABLE IF NOT EXISTS users (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "username TEXT NOT NULL UNIQUE, " +
@@ -117,22 +119,22 @@ public class UserService {
 
         try (Connection conn = dataSource.getConnection();
              Statement stmt = conn.createStatement()) {
+            // Drop the existing table
+            stmt.execute(dropTableSql);
+            // Recreate the table
             stmt.execute(createTableSql);
         } catch (SQLException e) {
             System.out.println("Error initializing database: " + e.getMessage());
         }
     }
 
-
     public List<String> getAllUsernames() {
         List<String> usernames = new ArrayList<>();
         String sql = "SELECT DISTINCT username FROM favorites";
 
-
         try (Connection connection = dataSource.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
-
 
             while (resultSet.next()) {
                 usernames.add(resultSet.getString("username"));
@@ -141,7 +143,6 @@ public class UserService {
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving all usernames", e);
         }
-
 
         return usernames;
     }
