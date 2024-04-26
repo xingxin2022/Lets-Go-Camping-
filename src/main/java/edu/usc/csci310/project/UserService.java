@@ -149,7 +149,7 @@ public class UserService {
 
     public List<ParkInfo> getFavoriteParksByUsername(String username) {
         List<ParkInfo> favoriteParks = new ArrayList<>();
-        String sql = "SELECT parkName, parkCode, isPrivate FROM favorites WHERE username = ?";
+        String sql = "SELECT parkName, parkCode, isPublic FROM favorites WHERE username = ?";
 
 
         try (Connection connection = dataSource.getConnection();
@@ -163,8 +163,8 @@ public class UserService {
             while (resultSet.next()) {
                 String parkName = resultSet.getString("parkName");
                 String parkCode = resultSet.getString("parkCode");
-                Boolean isPrivate = resultSet.getBoolean("isPrivate");
-                favoriteParks.add(new ParkInfo(parkName, parkCode, isPrivate));
+                Boolean isPublic = resultSet.getBoolean("isPublic");
+                favoriteParks.add(new ParkInfo(parkName, parkCode, !isPublic));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving favorite parks", e);
