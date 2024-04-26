@@ -46,22 +46,29 @@ Feature: Search for a park to visit based on various attributes
     Then I should see a list of parks that match "Yosemite"
 
   Scenario: Load more results button is functional
-    Given I am on search page
+    Given I am on the search page
     When I enter "park" into search box
     And click the search button
     And I click the load more results button
     Then I should see 20 parks listed in the search results
 
   Scenario: Add to favorites button is functional/Adding park to favorite
-    Given I am on the search results page
-    When  I hover over the park card
+    Given I am on the search page
+    When I click favoriteList button
+    And delete all parks in favoriteList
+    And I click search button
+    And I enter "park" into search box
+    And click the search button
+    And  I hover over the park card
     And I click the favorites button on a park
     Then I should see the message "Park successfully added to favorite list"
 
 
   Scenario: Park is already in favorites
     Given I am on the search results page
-    When  I hover over the park card
+    When I hover over the park card
+    And I click the favorites button on a park
+    And I hover over the park card
     And I click the favorites button on a park
     Then I should see the message "Park already in the favorite list"
 
@@ -84,7 +91,7 @@ Feature: Search for a park to visit based on various attributes
 
   Scenario: Clicking home button works
     Given I am on the search page
-    When I click home button
+    When I click home button on search page
     Then I should be directed to "Log In" page
 
   Scenario: Navigate to favorites list page
@@ -94,13 +101,14 @@ Feature: Search for a park to visit based on various attributes
 
   Scenario: Navigate to compare list page
     Given I am on the search page
-    When I click compareList button
+    When I click compareList button on search page
     Then I should be directed to compare page
 
   Scenario: Logout button is functional
     Given I am on the search page
-    When I click Logout button
+    When I click Logout button on search page
     Then I should be directed to "Log In" page
+
   Scenario: Clicking search button given input exists
     Given I am on the search page
     When I enter "Yosemite" into search box
