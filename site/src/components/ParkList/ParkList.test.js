@@ -7,7 +7,6 @@ jest.mock('../Park/Park', () => (props) => <div data-testid="mock-park">{props.p
 const parksMock = [
     { id: '1', fullName: 'Yosemite National Park' },
     { id: '2', fullName: 'Grand Canyon National Park' },
-    // ...other parks
   ];
 const onSetShowParkMock = jest.fn();
 const setUserFavoritesMock = jest.fn();
