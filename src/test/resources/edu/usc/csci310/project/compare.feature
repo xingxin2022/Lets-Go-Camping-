@@ -6,13 +6,11 @@ Feature: Compare favorite park list with friends
     When I compare my list with my friend's list
     Then I should see a list with "Adams National Historical Park", "Abraham Lincoln Birthplace National Historical Park", and "Acadia National Park"
 
-
   Scenario: Comparing with a friend with public list CANT YET
     Given I have a list with "Adams National Historical Park" and "Abraham Lincoln Birthplace National Historical Park"
     And my friend has a "public" list [CANT DO YET!!]
     When I compare my list with my friend's list
     Then I should see a list with parks from both lists
-
 
   Scenario: Comparing with a friend with private list CANT YET
     Given I have a list with "Adams National Historical Park" and "Abraham Lincoln Birthplace National Historical Park"
