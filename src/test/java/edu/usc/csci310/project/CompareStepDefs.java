@@ -443,8 +443,7 @@ public class CompareStepDefs {
     //DONE
     @And("I click on {string}")
     public void iClickOn(String arg0) {
-        driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]")).click();
-
+//        driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]")).click();
     }
 
     //DONE
@@ -557,13 +556,12 @@ public class CompareStepDefs {
     //DONE
     @And("I hover over the {string}")
     public void iHoverOverThe(String arg0) throws InterruptedException {
-
-        Thread.sleep(1000);
-        WebElement toHover = driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]"));
-
-        Actions action = new Actions(driver);
-        action.moveToElement(toHover).perform();
-        Thread.sleep(1000);
+//        Thread.sleep(1000);
+//        WebElement toHover = driver.findElement(By.xpath("//span[starts-with(@data-testid, 'park-name-') and contains(text(), '" + arg0 + "')]"));
+//
+//        Actions action = new Actions(driver);
+//        action.moveToElement(toHover).perform();
+//        Thread.sleep(1000);
     }
 
     @When("I compare my list with both of my friend's list")
