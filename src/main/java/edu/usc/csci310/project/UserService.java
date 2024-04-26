@@ -126,7 +126,7 @@ public class UserService {
 
     public List<String> getAllUsernames() {
         List<String> usernames = new ArrayList<>();
-        String sql = "SELECT username FROM users";
+        String sql = "SELECT DISTINCT username FROM favorites";
 
 
         try (Connection connection = dataSource.getConnection();
@@ -137,7 +137,6 @@ public class UserService {
             while (resultSet.next()) {
                 usernames.add(resultSet.getString("username"));
             }
-
 
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving all usernames", e);
