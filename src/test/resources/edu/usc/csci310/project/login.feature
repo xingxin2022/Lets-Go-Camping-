@@ -71,10 +71,8 @@ Feature: Login page with create account and login.
     And I click the login button
     Then I should see login error "Username does not exist"
 
-
   Scenario: login with incorrect password
     Given I am on the login page
-
     And I have an account with the username "username1" and password "Password123"
     When I enter "username1" into login username field
     And I enter "Password1" into login password field
